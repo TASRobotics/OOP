@@ -16,3 +16,8 @@ void draw(){
   
   
 }
+
+boolean isPointInRectangle(float px, float py, float x1, float y1, float x2, float y2) {
+  // Check if the point is within the bounds of the rectangle
+  return (px >= x1 && px <= x2 && py >= y1 && py <= y2);
+}
