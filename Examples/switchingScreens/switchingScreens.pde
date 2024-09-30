@@ -20,7 +20,8 @@ void draw() {
 void startScreen() {
   background(255);
   fill(0);
-  text("press space to begin", 100, 100);
+  textAlign(CENTER, CENTER);
+  text("press space to begin", width/2, height/2);
 }
 
 void game() {
