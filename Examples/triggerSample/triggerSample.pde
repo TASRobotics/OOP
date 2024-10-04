@@ -2,6 +2,9 @@ import processing.sound.*;
 
 SoundFile file;
 
+
+float process = 0.0;
+
 // Define a variable to store the randomly generated background color in
 int backgroundColor[] = {255, 255, 255};
 
@@ -23,7 +26,8 @@ void keyPressed() {
 
   switch(key) {
   case 'a':
-    file.play(3.0, 1.0);
+    file.play(5.0, 1.0);
+    process += 0.1;
     break;
     // no valid key was pressed, store that information
   default:
