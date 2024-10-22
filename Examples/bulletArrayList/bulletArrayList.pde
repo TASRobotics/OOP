@@ -3,13 +3,19 @@ float playerY = 300;
 //int[] nums = new int[100];
 //Bullet[] ammo = new Bullet[100];
 ArrayList<Bullet> ammo = new ArrayList<Bullet>(); //we dont need the 100 because arraylist can be any size
-ArrayList<Enemy> foes = new ArrayList<Enemy>();
-boolean poweredup = true;
+boolean poweredup = false;
+ArrayList<Enemy> wuw = new ArrayList<Enemy>();
+int score = 0;
+Enemy austin;
+
+
+
 
 
 
 void setup() {
   size(800, 600);
+  wuw.add(new Enemy(700, random(100, 500)));
 }
 
 
@@ -17,32 +23,38 @@ void setup() {
 void draw() {
   background(50);
   circle(playerX, playerY, 50);
-  
-  if(frameCount % 90 == 0){
-    foes.add(new Enemy(800, random(100, 500)));
-  }
-
-
+  textSize(60);
+  text(score, 750, 50);
   //go through all bullets and update position / draw them
   for (int i = 0; i < ammo.size(); i++) {
-    //Bullet b = ammo[i];
+
     Bullet b = ammo.get(i);
     b.pewpew();
   }
 
-  for (Enemy e : foes) {
+  for (int i = 0; i < wuw.size(); i++) {
+    Enemy e = wuw.get(i);
     e.walk();
+    if (e.health <= 0) {
+      score++;
+      e.x = -1000;
+      e.y = -1000;
+      e.cx = -1000;
+      e.health = 1;
+    }
+  }
+
+  if (frameCount % 60 == 0) {
+    wuw.add(new Enemy(700, random(100, 500)));
   }
 
   for (Bullet b : ammo) {
-    for (Enemy e : foes) {
-      if (circleCircle(b.x, b.y, 20, e.x, e.y, e.size/2)) {
-        e.health -= 10;
-        b.y = -1000;
-        if (e.health <= 0) {
-          e.y = -2000;
-          e.cx = 0;
-        }
+    for (Enemy e : wuw) {
+      if (circleCircle(e.x, e.y, e.size / 2, b.x, b.y, 10)) {
+        e.health-= 10;
+        b.x = -100;
+        b.y = -100;
+        b.cx = 0;
       }
     }
   }

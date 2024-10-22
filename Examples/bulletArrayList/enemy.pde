@@ -11,6 +11,7 @@ class Enemy {
     health = 100;
     size = 50;
   }
+
   
   
   void walk(){ 
