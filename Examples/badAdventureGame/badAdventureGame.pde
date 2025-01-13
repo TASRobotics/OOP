@@ -1,12 +1,15 @@
 int screen = 0;
+int lastScreen;
 float x = 400;
 float y = 300;
 float speed = 4;
+
 
 boolean playerHasSword = false;
 
 import java.util.HashSet;
 HashSet<Integer> keysDown = new HashSet<Integer>();
+
 void setup() {
   //fullScreen();
   size(800, 600);
@@ -14,8 +17,6 @@ void setup() {
 
 void draw() {
   background(50);
-
-
   switch(screen) {
   case 0:
     screen0();
@@ -23,12 +24,16 @@ void draw() {
   case 1:
     screen1();
     break;
+  case -1:
+    inventory();
+    break;
   default:
     break;
   }
   customPress();
-
-  drawPlayer();
+  if(screen != -1){
+    drawPlayer();
+  }
 }
 
 void drawPlayer() {
@@ -38,36 +43,7 @@ void drawPlayer() {
 
 
 
-void screen1() {
-  // Rectangle 1
-  fill(255, 165, 0); // Bright Orange
-  rect(150, 120, 180, 90); // x, y, width, height
 
-  // Rectangle 2
-  fill(75, 0, 130); // Indigo
-  rect(350, 250, 140, 120);
-
-  // Rectangle 3
-  fill(0, 255, 255); // Cyan
-  rect(500, 100, 200, 150);
-
-  // Rectangle 4
-  fill(255, 20, 147); // Deep Pink
-  rect(600, 400, 160, 90);
-  
-  if(!playerHasSword){
-   drawSwordOnFloor(); 
-  }
-
-
-  if (x < 0) {
-    screen = 0;
-    x = 800;
-  }
-  if (y < 0) {
-    y = 0;
-  }
-}
 
 void drawSwordOnFloor(){
    // Blade (long vertical rectangle)
@@ -102,12 +78,23 @@ void customPress() {
     if (k == int('A')) {
       x -= speed;
     }
+    
   }
 }
 
 void keyPressed(KeyEvent e) {
   println(e.getKeyCode());
   keysDown.add(e.getKeyCode());
+  
+  if(key == 'i'){
+      if(screen != -1){
+        lastScreen = screen;
+        screen = -1;
+      } else {
+        screen = lastScreen; 
+      }
+    }
+  
 }
 
 void keyReleased(KeyEvent e) {
