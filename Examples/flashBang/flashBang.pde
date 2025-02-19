@@ -7,6 +7,9 @@ ArrayList<Bomb> bombs = new ArrayList<Bomb>();
 boolean playerBlind = false;
 int blindCountdown = 400;
 
+float playerHealth = 100;
+float speedmultiplier = 1.0;
+
 void setup() {
   //fullScreen();
   size(800, 600);
@@ -15,18 +18,17 @@ void setup() {
 
 void draw() {
   background(50);
-
-
-  for (Bomb b : bombs) {
-    b.display();
-    b.logic(x, y);
-  }
   for (int i = bombs.size()-1; i >= 0; i--) {
     Bomb b = bombs.get(i);
     if (b.exploded == true) {
       bombs.remove(b);
     }
   }
+  for (Bomb b : bombs) {
+    b.display();
+    b.logic(x, y);
+  }
+
 
 
   fill(255);
@@ -35,7 +37,7 @@ void draw() {
 
   if (playerBlind) {
     int opacity;
-    if(blindCountdown > 255){
+    if (blindCountdown > 255) {
       opacity = 255;
     } else {
       opacity = blindCountdown;
@@ -49,13 +51,15 @@ void draw() {
       blindCountdown = 400;
     }
   }
+  textSize(40);
+  text((int)playerHealth, 50, 50);
 }
 
 void customPress() {
   if (keysDown.contains(16)) { //shift
-    speed = 6.27;
+    speed = 6.27*speedmultiplier;
   } else {
-    speed = 1.5;
+    speed = 1.5*speedmultiplier;
   }
   for (Integer k : keysDown) {
     if (k == 87) { //w
@@ -87,5 +91,9 @@ boolean keyDown(int kcode) {
 }
 
 void mousePressed() {
-  bombs.add(new Bomb(mouseX, mouseY));
+  if (mouseButton == LEFT) {
+    bombs.add(new Bomb(mouseX, mouseY));
+  } else {
+    bombs.add(new Grenade(mouseX, mouseY));
+  }
 }
