@@ -16,6 +16,7 @@ class Enemy {
  }
  
  void display(){
+   fill(255);
    circle(pos.x, pos.y, d);
  }
  
