@@ -16,6 +16,7 @@ class Enemy {
  }
  
  void display(){
+   fill(255);
    circle(pos.x, pos.y, d);
  }
  
@@ -32,6 +33,9 @@ class Enemy {
       reachedEnd();
     }
  }
+ void slowDown() {
+  speed *= 0.5; // Reduce speed when on Glue
+}
  
  void reachedEnd(){
    user.HP--;
