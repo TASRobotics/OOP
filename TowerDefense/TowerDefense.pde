@@ -7,6 +7,7 @@ Path p = new Path();
 ArrayList<Enemy> enemies = new ArrayList<Enemy>();
 ArrayList<Spike> spikes = new ArrayList<Spike>();
 Player user = new Player();
+Tower t = new Tower(1150, 650);
 
 void setup() {
   //fullScreen();
@@ -30,10 +31,12 @@ void mainGame() {
   user.drawHealth();
   user.checkGameOver();
   p.display();
+  t.display();
+  t.defend(enemies);
   for(Spike s : spikes){
     s.display();
     for(Enemy e : enemies){
-      s.check(e);
+      checkSpikeEnemyCollision(s, e);
     }
   }
   for (Enemy e : enemies) {
@@ -67,7 +70,13 @@ void gameOver() {
   background(255, 0, 0);
 }
 
-
+void checkSpikeEnemyCollision(Spike s, Enemy e){
+  if(circleCircle(e.pos.x, e.pos.y, e.d/2, s.pos.x, s.pos.y, 5)){
+    s.kill();
+    e.kill();
+    //score += 5;
+  }
+}
 
 void keyPressed() {
   enemies.add(new Enemy());
