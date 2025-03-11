@@ -5,7 +5,9 @@ String screen = "mainGame";
 
 Path p = new Path();
 ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+ArrayList<Spike> spikes = new ArrayList<Spike>();
 Player user = new Player();
+Tower t = new Tower(1150, 650);
 
 void setup() {
   //fullScreen();
@@ -14,26 +16,35 @@ void setup() {
 }
 
 void draw() {
-  switch(screen){
-    case "mainGame":
-      mainGame();
-      break;
-    case "gameOver":
-      gameOver();
-      break;
+  switch(screen) {
+  case "mainGame":
+    mainGame();
+    break;
+  case "gameOver":
+    gameOver();
+    break;
   }
 }
 
-void mainGame(){
-    background(200);
+void mainGame() {
+  background(200);
   user.drawHealth();
   user.checkGameOver();
   p.display();
+  t.display();
+  t.defend(enemies);
+  for(Spike s : spikes){
+    s.display();
+    for(Enemy e : enemies){
+      checkSpikeEnemyCollision(s, e);
+    }
+  }
   for (Enemy e : enemies) {
     e.display();
     e.move();
   }
   removeDeadEnemies();
+  removeDeadSpikes();
 }
 
 
@@ -45,15 +56,32 @@ void removeDeadEnemies() {
     }
   }
 }
-
-
-
-void gameOver(){
-  background(255, 0, 0);
+void removeDeadSpikes() {
+  for (int i = spikes.size() - 1; i >= 0; i--) {
+    Spike test = spikes.get(i);
+    if (test.removeme) {
+      spikes.remove(test);
+    }
+  }
 }
 
 
+void gameOver() {
+  background(255, 0, 0);
+}
 
-void keyPressed(){
-  enemies.add(new Enemy()); 
+void checkSpikeEnemyCollision(Spike s, Enemy e){
+  if(circleCircle(e.pos.x, e.pos.y, e.d/2, s.pos.x, s.pos.y, 5)){
+    s.kill();
+    e.kill();
+    //score += 5;
+  }
+}
+
+void keyPressed() {
+  enemies.add(new Enemy());
+}
+
+void mousePressed(){
+  spikes.add(new Spike(mouseX, mouseY));
 }

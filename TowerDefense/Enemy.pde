@@ -16,6 +16,7 @@ class Enemy {
  }
  
  void display(){
+   fill(255);
    circle(pos.x, pos.y, d);
  }
  
@@ -31,6 +32,13 @@ class Enemy {
     if(targetPoint == p.points.size()){
       reachedEnd();
     }
+    if(HP <= 0){
+      removeme = true;
+    }
+ }
+ 
+ void kill(){
+   removeme = true;
  }
  
  void reachedEnd(){
