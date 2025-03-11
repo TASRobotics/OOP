@@ -4,11 +4,8 @@ class BigBoy extends Enemy {
   c = color(255, 0, 0);
   d = 100;
   HP = 5;
+  damage = 4;
  }
- 
- void reachedEnd(){
-   user.HP-= 4;
-   removeme = true;
- }
+
   
 }
