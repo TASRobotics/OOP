@@ -6,6 +6,7 @@ class Enemy {
  color c;
  float d;
  boolean removeme = false;
+ 
  Enemy(){
    pos = p.points.get(0).copy();
    speed = 13;
