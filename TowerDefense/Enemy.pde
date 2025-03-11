@@ -32,6 +32,13 @@ class Enemy {
     if(targetPoint == p.points.size()){
       reachedEnd();
     }
+    if(HP <= 0){
+      removeme = true;
+    }
+ }
+ 
+ void kill(){
+   removeme = true;
  }
  
  void reachedEnd(){

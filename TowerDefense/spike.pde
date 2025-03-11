@@ -1,18 +1,21 @@
 class Spike {
- PVector p;
+ PVector pos;
  boolean removeme= false;
  
  Spike(float x, float y){
-  p = new PVector(x, y); 
+  pos = new PVector(x, y); 
  }
  
+ void kill(){
+  removeme = true; 
+ }
  void display(){
    fill(0);
-   circle(p.x, p.y, 10); 
+   circle(pos.x, pos.y, 10); 
  }
  
  void check(Enemy e){
-   if(circleCircle(e.pos.x, e.pos.y, e.d/2, p.x, p.y, 5)){
+   if(circleCircle(e.pos.x, e.pos.y, e.d/2, pos.x, pos.y, 5)){
     e.removeme = true; 
     removeme = true;
    }
