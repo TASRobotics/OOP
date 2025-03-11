@@ -5,7 +5,9 @@ class Enemy {
  int HP;
  color c;
  float d;
+ int damage = 1;
  boolean removeme = false;
+ 
  Enemy(){
    pos = p.points.get(0).copy();
    speed = 13;
@@ -42,7 +44,7 @@ class Enemy {
  }
  
  void reachedEnd(){
-   user.HP--;
+   user.HP -= damage;
    removeme = true;
  }
   

@@ -27,6 +27,9 @@ void draw() {
 }
 
 void mainGame() {
+  if(frameCount % 60 == 0){
+    enemies.add(new BigBoy());
+  }
   background(200);
   user.drawHealth();
   user.checkGameOver();
