@@ -20,7 +20,7 @@ void setup(){
 }
 
 void draw(){
- background(200); 
+ background(225); 
 
  image(dino, dx, dy);
  dy += dv;
