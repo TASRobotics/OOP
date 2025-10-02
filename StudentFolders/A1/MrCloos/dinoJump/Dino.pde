@@ -6,23 +6,23 @@ class Dino {
   float w;
   float h;
   boolean canJump;
-  
+
   Dino() {
     pos = new PVector(50, 550);
-    vel = new PVector(0,0);
+    vel = new PVector(0, 0);
     grav = new PVector(0, 0.5);
     jumpStrength = 10;
     w = 30;
     h = 50;
     canJump = true;
   }
-  
+
   void update() {
     pos.add(vel);
-    if(vel.y != 0 || pos.y < 550){ //add gravity if youre moving or youre above the ground
+    if (vel.y != 0 || pos.y < 550) { //add gravity if youre moving or youre above the ground
       vel.add(grav);
     }
-    if(pos.y + h > height){
+    if (pos.y + h > height) {
       vel.y = 0;
       pos.y = 550;
       canJump = true;
@@ -35,13 +35,17 @@ class Dino {
   }
 
   void jump() {
-    if(canJump == true){
+    if (canJump == true) {
       vel = new PVector(0, -jumpStrength);
       canJump = false;
     }
   }
-  
+
   boolean isTouching(Obs o) {
-    return false;
+    if (rectRect(pos.x, pos.y, w, h, o.pos.x, o.pos.y, o.w, o.h) == true) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
