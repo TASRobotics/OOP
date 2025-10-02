@@ -15,6 +15,7 @@ class Dino {
     w = 30;
     h = 50;
     canJump = true;
+    mario.resize((int)w, (int)h);
   }
 
   void update() {
@@ -31,7 +32,8 @@ class Dino {
 
   void display() {
     fill(0);
-    rect(pos.x, pos.y, w, h);
+    image(mario, pos.x, pos.y);
+    //rect(pos.x, pos.y, w, h);
   }
 
   void jump() {
