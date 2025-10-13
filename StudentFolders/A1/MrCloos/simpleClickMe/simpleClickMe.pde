@@ -19,19 +19,22 @@ void draw() {
   text(counter, 400, 300);
 
 
-  if (pointCircle(mouseX, mouseY, 400, 300, 50) == true) { //change color when hovered
+  if (pointCircle(mouseX, mouseY, 100, 100, 50) == true) { //change color when hovered
     fill(255, 0, 0);
   } else {
     fill(255);
   }
-  circle(400, 300, 100);
+  circle(100, 100, 100);
   fill(0);
-  text(counter, 400, 300);
+  text(counter2, 100, 100);
 }
 
 void mousePressed() {
   if (pointCircle(mouseX, mouseY, 400, 300, 50) == true) {
     counter++;
+  }
+   if (pointCircle(mouseX, mouseY, 100, 100, 50) == true) {
+    counter2++;
   }
 }
 
