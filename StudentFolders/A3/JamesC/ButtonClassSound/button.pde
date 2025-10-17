@@ -26,6 +26,7 @@ class Button {
   boolean check() {
     if (pointCircle(mouseX, mouseY, x, y, dia/2) == true) {
       count++;
+      a.play(1.0, 0.01);
       return true;
     } else {
       return false;

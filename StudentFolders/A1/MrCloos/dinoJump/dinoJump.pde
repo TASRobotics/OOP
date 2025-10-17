@@ -1,16 +1,23 @@
+import processing.sound.*;
+
 Dino d;
 ArrayList<Obs> obstacles = new ArrayList<Obs>();
 boolean gameOver = false;
 int spawnAfterX;
 int offset = 0;
 PImage mario;
+SoundFile file;
+
+boolean startedsong = false;
 
 void setup() {
   //fullScreen();
   size(800, 600);
+  file = new SoundFile(this, "notarickroll.mp3");
   mario = loadImage("MPSS_Mario.png");
   d = new Dino();
   spawnAfterX = (int)random(60, 120);
+  file.amp(0.5);
 }
 
 void draw() {
@@ -39,6 +46,8 @@ void keyPressed() {
     spawnAfterX = frameCount + (int)random(60, 120);
     gameOver = false;
     offset = frameCount;
+    file.pause();
+    startedsong = false;
   }
 }
 
@@ -64,6 +73,10 @@ void gameOver() {
   textAlign(CENTER, CENTER);
   textSize(100);
   text("U DED", 400, 300);
+  if(startedsong == false){
+    file.loop();
+    startedsong = true;
+  }
 }
 
 void showFrameCount() {

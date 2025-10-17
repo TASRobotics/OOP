@@ -8,6 +8,9 @@ import processing.sound.*;
 
 SoundFile[] file;
 
+
+
+
 // Define the number of samples 
 int numsounds = 5;
 
@@ -16,7 +19,6 @@ int backgroundColor[] = {255, 255, 255};
 
 void setup() {
   size(640, 360);
-
   // Create a Sound renderer and an array of empty soundfiles
   file = new SoundFile[numsounds];
 
@@ -25,7 +27,10 @@ void setup() {
   // through the folder and load all files in one line of code.
   for (int i = 0; i < numsounds; i++) {
     file[i] = new SoundFile(this, (i+1) + ".aif");
+    file[i].amp(0.75);
   }
+  
+
 }
 
 void draw() {
@@ -36,10 +41,11 @@ void keyPressed() {
   // We use a boolean helper variable to determine whether one of the branches
   // of the switch-statement was activated or not
   boolean validKey = true;
+  
 
   switch(key) {
   case 'a':
-    file[0].play(0.5, 1.0);
+    file[0].play(0.5);
     break;
 
   case 's':
