@@ -13,6 +13,7 @@ SoundFile file;
 void setup(){
   //fullScreen();
   size(800, 600);
+  file = new SoundFile(this, "");
 }
 
 void draw(){
