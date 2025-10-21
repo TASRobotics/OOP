@@ -1,0 +1,47 @@
+int score = 0;
+int highscore = 0;
+int state = 0;
+
+String hs;
+String[] tosave = {""};
+String[] toload;
+
+void setup() {
+  //fullScreen();
+  size(800, 600);
+  textSize(30);
+  toload = loadStrings("highscore.txt");
+  highscore = int(toload[0]);
+}
+
+void draw() {
+  background(50); 
+  hs = str(highscore);
+  tosave[0] = hs;
+  if (state == 0) {
+    text("high score = " + highscore, 100, 100);
+  }
+  if (state == 1) {
+    text("score = " + score, 100, 100);
+    score = mouseX;
+    if (score >= highscore) {
+      highscore = score;
+      saveStrings("/data/highscore.txt", tosave);
+    }
+  }
+}
+
+void keyPressed() {
+  if (key == ' ') {
+    state = 1;
+  }
+  if (key == 'z') {
+    state = 0;
+  }
+  if (key == 'r') {
+    highscore = 0;
+    hs = str(highscore);
+    tosave[0] = hs;
+    saveStrings("/data/highscore.txt", tosave);
+  }
+}
