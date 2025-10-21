@@ -36,11 +36,4 @@ class Dino {
       vel.y = -jumpSpeed;
     }
   }
-  boolean check(Cactus checkme) {
-    if (rectRect(pos.x, pos.y, w, h, checkme.pos.x, checkme.pos.y, checkme.w, checkme.h) == true) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 }

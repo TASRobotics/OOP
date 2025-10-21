@@ -1,6 +1,5 @@
 Dino d;
 ArrayList<Cactus> cacti = new ArrayList<Cactus>();
-boolean gameover = false;
 
 void setup() {
   size(800, 600);
@@ -8,21 +7,13 @@ void setup() {
 }
 
 void draw() {
-  if (gameover == false) {
-    background(50);
-    d.display(); //dinosaur "d" should display itself
-    d.update();
+  background(50);
+  d.display(); //dinosaur "d" should display itself
+  d.update();
 
-    for (Cactus c : cacti) {
-      c.display();
-      c.update();
-      if (d.check(c) == true) {
-        gameover = true;
-      }
-    }
-    showScore();
-  } else {
-    
+  for (Cactus c : cacti) {
+    c.display();
+    c.update();
   }
 }
 
