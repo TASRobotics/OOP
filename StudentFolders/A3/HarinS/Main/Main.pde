@@ -1,5 +1,6 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 Button b1;
 Button b2;
 Button b3;
@@ -16,6 +17,8 @@ void setup() {
 =======
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 int point = 0;
 int point1 = 0;
 int point2 = 0;
@@ -25,6 +28,9 @@ void setup() {
   textSize(20);
   textAlign(CENTER, CENTER);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -32,6 +38,7 @@ void setup() {
 
 void draw() {
   background(50);
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
   b1.display();
@@ -55,6 +62,8 @@ void mousePressed() {
   if(b4.check() == true){
     x += 10;
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
   if (pointCircle(mouseX, mouseY, 400, 300, 100)) {
@@ -95,6 +104,9 @@ void mousePressed() {
   if (pointCircle(mouseX, mouseY, 600, 400, 100)) {
     point2 = point2 + 1;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
