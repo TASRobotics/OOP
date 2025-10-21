@@ -10,13 +10,13 @@ void setup() {
 }
 
 void draw() {
-  background(50); 
+  background(50);
   circle(x, y, 50);
   customPress();
 }
 
 void customPress() {
-  if(keysDown.contains(16)){ //shift
+  if (keysDown.contains(16)) { //shift
     speed = 6.27;
   } else {
     speed = 1.5;
@@ -25,7 +25,7 @@ void customPress() {
     if (k == 87) { //w
       y -= speed;
     }
-    if (k == 68) { //d
+    if (k == 'D') { //d
       x += speed;
     }
     if (k == int('S')) {
