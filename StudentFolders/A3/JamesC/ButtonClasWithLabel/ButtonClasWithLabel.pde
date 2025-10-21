@@ -1,0 +1,43 @@
+Button b1;
+Button b2;
+Button b3;
+
+int size = 100;
+
+void setup(){
+  //fullScreen();
+  size(800, 600);
+  b1 = new Button(100, 300, 100, "a");
+  b2 = new Button(100, 100, 50, "hello");
+  b3 = new Button(500, 500, 75, "up");
+  b2.setColor(0, 100, 200);
+  b2.label = "hi";
+
+}
+
+void draw(){
+ background(50); 
+ b1.display();
+ b2.display();
+ b3.display();
+   fill(255, 100, 100);
+  circle(400, 300, size);
+}
+
+void mousePressed(){
+  if(b1.check() == true){
+    size += 10;
+  }
+  b2.check();
+  if(b3.check() == true){
+    size -= 10;
+  }
+}
+
+boolean pointCircle(float px, float py, float cx, float cy, float cr) {
+  if (dist(px, py, cx, cy) < cr) {
+    return true;
+  } else {
+    return false;
+  }
+}
