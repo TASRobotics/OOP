@@ -9,13 +9,7 @@ float targetw = 75;
 float targeth = 75;
 
 boolean bulletHasBeenFired = false;
-boolean hit() {
-  if (bulletx >= targetx && bulletx <= targetx + targetw && bullety >= targety && bullety <= targety + targeth) {
-    return true;
-  } else {
-    return false;
-  }
-}
+boolean hit;
 
 int score = 0;
 
@@ -34,14 +28,20 @@ void draw() {
   text(score, 50, 50);
   rect(targetx, targety, targetw, targeth);
 
+  if (hit() && bulletHasBeenFired && !hit) {
+    score = score + 1;
+    hit = true;
+  }
+
   if (bulletHasBeenFired == true) {
     bullety -= 5;
   } else {
     bulletx = px;
   }
 
-  if (bullety < 0) {
+  if (bullety < 0 || hit) {
     bulletHasBeenFired = false;
+    hit = false;
     bullety = py;
     bulletx = px;
   }
@@ -63,9 +63,14 @@ void drawPlayerAndBullet() {
 void shoot() {
   bulletHasBeenFired = true;
 }
+boolean hit() {
+  if (bulletx >= targetx && bulletx <= targetx + targetw && bullety >= targety && bullety <= targety + targeth) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 void drawScore() {
-  if (hit() && bulletHasBeenFired) {
-    score++;
-  }
+  
 }
