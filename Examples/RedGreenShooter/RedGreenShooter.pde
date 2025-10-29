@@ -5,11 +5,16 @@ float bs = 0;
 float speed = 1.5;
 boolean canShoot = true;
 boolean isBulletRed = true;
-
+boolean canSpawn = true;
 int score = 0;
 
-Enemy e;
-Enemy e2;
+float enemyx;
+float enemyy;
+
+
+int maxEnemies = 1;
+
+ArrayList<Enemy> enemies = new ArrayList<Enemy>();
 
 import java.util.HashSet;
 HashSet<Integer> keysDown = new HashSet<Integer>();
@@ -17,8 +22,9 @@ HashSet<Integer> keysDown = new HashSet<Integer>();
 void setup() {
   //fullScreen();
   size(800, 600);
-  e = new Enemy();
-  e2 = new Enemy();
+  enemies.add(new Enemy());
+  //e = new Enemy();
+  //e2 = new Enemy();
   textSize(40);
 }
 
@@ -43,42 +49,28 @@ void draw() {
   if (by < 0) {
     canShoot = true;
   }
-  e.moveanddraw();
-  e2.moveanddraw();
 
-
-  if (circleCircle(bx, by, 5, e.x, e.y, e.d/2) == true) {
-    if (isBulletRed == e.isEnemyRed) {
-      score++;
-      bx = -1000;
-      by = -1000;
-      bs = 0;
-      canShoot = true;
-      e = new Enemy();
-    } else {
-      score--;
-      bx = -1000;
-      by = -1000;
-      bs = 0;
-      canShoot = true;
-      e.speed++;
-    }
+  if (score == 3 && enemies.size() <= maxEnemies) {
+    maxEnemies = 2;
+    enemies.add(new Enemy());
   }
-  if (circleCircle(bx, by, 5, e2.x, e2.y, e2.d/2) == true) {
-    if (isBulletRed == e2.isEnemyRed) {
-      score++;
+
+
+  for (int i = 0; i < enemies.size(); i++) {
+    Enemy temp = enemies.get(i);
+    temp.moveanddraw();
+    if (circleCircle(bx, by, 5, temp.x, temp.y, temp.d/2) == true) {
       bx = -1000;
       by = -1000;
       bs = 0;
       canShoot = true;
-      e2 = new Enemy();
-    } else {
-      score--;
-      bx = -1000;
-      by = -1000;
-      bs = 0;
-      canShoot = true;
-      e2.speed++;
+      if (isBulletRed == temp.isEnemyRed) {
+        score+=1;
+        temp.respawn();
+      } else {
+        score--;
+        temp.speed++;
+      }
     }
   }
 }
