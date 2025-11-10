@@ -1,4 +1,4 @@
-class Environment {
+public class Environment {
   private color c;
   private float ticks;
   private float dayLen;

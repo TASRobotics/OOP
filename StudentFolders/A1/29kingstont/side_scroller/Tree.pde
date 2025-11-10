@@ -1,4 +1,4 @@
-class Tree extends Static {
+public class Tree extends Static {
   Tree(PVector pos, int w, int h) {
     super(pos, w, h);
   }

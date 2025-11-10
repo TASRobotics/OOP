@@ -1,25 +1,42 @@
-class Layer {
+public class Layer {
     ArrayList<Displayable> items;
-    ArrayList<Movable> dynamic;
+    ArrayList<Entity> entities;
+    ArrayList<ParticleSystem> particleSystems;
 
     Layer() {
         items = new ArrayList<>();
-        dynamic = new ArrayList<>();
+        entities = new ArrayList<>();
+        particleSystems = new ArrayList<>();
     }
 
-    public void submitDynamicItem(Movable m) {
-        dynamic.add(m);
+    public void submitEntity(Entity m) {
+        entities.add(m);
     }
-    public void startFrame() {
-        dynamic.clear();
+    public void removeEntity(int id) {
+        entities.removeIf(e -> e.id == id);
     }
 
     int getNumItems() {
-        return items.size() + dynamic.size();
+        return items.size() + entities.size();
     }
 
-    void add(Displayable d) {
+    void add(Static d) {
         items.add(d);
+    }
+    void add(Entity d) {
+        entities.add(d);
+    }
+    void add(ParticleSystem d) {
+        particleSystems.add(d);
+    }
+
+    void update(World world) {
+        for (Entity e : entities) {
+            e.update(world);
+        }
+        for (ParticleSystem d : particleSystems) {
+            d.update();
+        }
     }
 
     void display(PVector offset) {
@@ -28,10 +45,15 @@ class Layer {
                 d.display();
             }
         }
-        for (Movable d : dynamic) {
+        for (Entity d : entities) {
             if (d.pos.x >= offset.x && d.pos.x <= offset.x + width) {
                 d.display();
             }
+        }
+        for (ParticleSystem d : particleSystems) {
+            // if (d.pos.x >= offset.x && d.pos.x <= offset.x + width) {
+                d.display();
+            // }
         }
     }
 }

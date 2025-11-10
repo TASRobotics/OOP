@@ -1,4 +1,4 @@
-abstract class Displayable {
+public abstract class Displayable {
     protected PVector pos;
     
     Displayable(PVector pos) {
@@ -14,6 +14,5 @@ abstract class Displayable {
     //     return map(1-dayPercentage, 0, 1, 0.33, 0.078);
     // }
     
-    public abstract void update();
     public abstract void display();
 }

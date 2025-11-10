@@ -10,10 +10,14 @@ class World {
 
   private MrKeyboard keyboard;
 
+  private ParticleSystem<Blood> bloodPs;
+
   World(int worldWidth, MrKeyboard keyboard) {
     this.terr = new Terrain(worldWidth);
     this.env = new Environment();
     this.keyboard = keyboard;
+
+    this.bloodPs = new ParticleSystem(new PVector(), (float x, float y, PVector vel, PVector acc) -> new Blood(new PVector(x, y), vel, acc));
 
     for (int i=0; i<layers.length; i++) {
       layers[i] = new Layer();
@@ -26,10 +30,6 @@ class World {
 
   public void update() {
     // UPDATE PLAYER
-    for (int i=0; i<layers.length; i++) {
-      layers[i].startFrame();
-    }
-
     if (meeple != null) {
       if (keyboard.isKeyDown('A')) {
         meeple.moveX(-meepleSpeed);
@@ -49,14 +49,30 @@ class World {
       
       meeple.applyForce(GRAVITY);
       meeple.update(world);
-      layers[meeple.getLayer()].submitDynamicItem(meeple);
+    }
+
+    // UPDATE ENTITIES
+    for (int i=layers.length-1; i>=0; i--) {
+      // UpdateContext ctx = new UpdateContext();
+      // ctx.world = this;
+      // ctx.terrain = terr;
+      // ctx.env = env;
+      // ctx.meeple = meeple;
+
+      layers[i].update(this);
     }
 
     env.advanceTime();
   }
 
-  public void attachPlayer(Meeple meeple) {
+  public void attachMeeple(Meeple meeple) {
     this.meeple = meeple;
+    layers[meeple.getLayer()].submitEntity(meeple);
+    layers[1].add(new FlyingDog(meeple.pos.copy()));
+
+    bloodPs.attachTo(meeple);
+    bloodPs.spawn(100);
+    layers[2].add(bloodPs);
   }
 
 
@@ -76,6 +92,14 @@ class World {
     fill(0, alpha);
     rect(offset.x, offset.y, width, height);
   }
+
+
+
+
+
+
+
+
 
 
 

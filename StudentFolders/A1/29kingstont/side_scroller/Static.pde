@@ -1,4 +1,4 @@
-abstract class Static extends Displayable {
+public abstract class Static extends Displayable {
   protected PGraphics cachedRender;
   public int w, h;
   
@@ -18,8 +18,7 @@ abstract class Static extends Displayable {
  
   protected abstract void renderCache();
 
-  @Override
-  public void update() {}
+  // public abstract void update();
 
   @Override
   public void display() {

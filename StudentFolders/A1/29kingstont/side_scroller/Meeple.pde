@@ -1,4 +1,4 @@
-class Meeple extends Movable {
+public class Meeple extends Entity {
   private float w, h;
   private float jmpStren;
   private int layer;
@@ -12,12 +12,16 @@ class Meeple extends Movable {
     this.layer = layer;
   }
 
+  public PVector getCenter() {
+    return PVector.add(this.pos, new PVector(w/2, h/2));
+  }
+
   public int getLayer() {
     return layer;
   }
   
   public void update(World world) {
-    super.update();
+    super.update(world);
     
     float terrH = world.terr.getHeightAt(pos.x+w/2);
     if (pos.y+h >= terrH) {

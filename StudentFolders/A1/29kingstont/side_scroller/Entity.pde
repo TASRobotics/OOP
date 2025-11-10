@@ -1,15 +1,21 @@
-public abstract class Movable extends Displayable {
+static int entityCount = 0;
+
+public abstract class Entity extends Displayable {
+    public int id;
     protected PVector vel, acc;
     protected float mass;
 
-    Movable(PVector pos, float mass) {
+    Entity(PVector pos, float mass) {
         super(pos);
+        this.id = entityCount;
         this.vel = new PVector();
         this.acc = new PVector();
         this.mass = mass;
+
+        entityCount++;
     }
 
-    Movable(PVector pos, PVector vel, PVector acc, float mass) {
+    Entity(PVector pos, PVector vel, PVector acc, float mass) {
         super(pos);
         this.vel = vel;
         this.acc = acc;
@@ -30,7 +36,7 @@ public abstract class Movable extends Displayable {
         acc.add(F.div(mass));
     }
 
-    public void update() {
+    public void update(World world) {
         vel.add(acc);
         pos.add(vel);
         acc.mult(0);

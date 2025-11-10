@@ -24,7 +24,7 @@ void setup() {
   world = new World(width, keyboard);
 
 
-  world.attachPlayer(new Meeple(2));
+  world.attachMeeple(new Meeple(2));
   world.generateDeco(0, world.getWorldWidth());
 }
 

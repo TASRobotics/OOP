@@ -1,0 +1,43 @@
+@FunctionalInterface
+public interface ParticleSupplier<T extends Particle> {
+    T create(float x, float y, PVector vel, PVector acc);
+}
+
+public class ParticleSystem<T extends Particle> {
+    PVector pos;
+    Entity parent;
+    ArrayList<T> particles;
+    ParticleSupplier<T> factory;
+
+    ParticleSystem(PVector pos, ParticleSupplier<T> factory) {
+        this.pos = pos;
+        this.particles = new ArrayList<>();
+        this.factory = factory;
+    }
+
+    void attachTo(Entity e) {
+        this.parent = e;
+    }
+
+    void spawn(int N) {
+        for (int i=0; i<N; i++) {
+            particles.add(factory.create(pos.x, pos.y, new PVector(random(-5, 5), random(-5, 5)), new PVector(random(-0.5, 0.5), random(-0.5, 0.5))));
+        }
+    }
+
+    void update() {
+        if (parent != null) {
+            this.pos = parent.getPos();
+        }
+
+        for (int i=particles.size()-1; i>=0; i--) {
+            particles.get(i).update();
+        }
+    }
+
+    void display() {
+        for (int i=particles.size()-1; i>=0; i--) {
+            particles.get(i).display();
+        }
+    }
+}
