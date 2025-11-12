@@ -40,4 +40,9 @@ public class Environment {
     
     return p;
   }
+
+  public void display(PVector offest) {
+    fill(world.env.getColor());
+    rect(offset.x, offset.y, width, height);
+  }
 }

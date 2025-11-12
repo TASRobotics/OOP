@@ -1,14 +1,17 @@
 public abstract class Particle {
-    PVector pos;
-    PVector vel;
-    PVector acc;
-    float lifespan;
+    protected PVector pos;
+    protected PVector vel;
+    protected PVector acc;
+    protected float lifespan;
+    protected float maxLifespan;
    
-    Particle(PVector p, PVector vel, PVector acc) {
+    Particle(PVector p, PVector vel, PVector acc, int lifespan) {
         pos = p;
         this.acc = acc;
         this.vel = vel;
-        lifespan = 255;
+
+        this.lifespan = lifespan;
+        this.maxLifespan = lifespan;
     }
    
     void applyForce(PVector f) {
@@ -18,7 +21,7 @@ public abstract class Particle {
     void update() {
         vel.add(acc);
         pos.add(vel);
-        lifespan -= 2.0;
+        lifespan -= 1.0;
         
         acc.mult(0);
     }

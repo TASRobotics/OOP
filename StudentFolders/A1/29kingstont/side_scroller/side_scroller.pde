@@ -32,9 +32,6 @@ float baseH = 300;
 
 
 void draw() {
-  background(world.env.getColor());
-
-  
   world.constructWorld(offset);
   world.update();
 

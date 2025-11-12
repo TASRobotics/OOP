@@ -20,13 +20,13 @@ public class Layer {
         return items.size() + entities.size();
     }
 
-    void add(Static d) {
+    void register(Static d) {
         items.add(d);
     }
-    void add(Entity d) {
+    void register(Entity d) {
         entities.add(d);
     }
-    void add(ParticleSystem d) {
+    void register(ParticleSystem d) {
         particleSystems.add(d);
     }
 

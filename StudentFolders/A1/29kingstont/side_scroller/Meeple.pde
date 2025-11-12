@@ -12,12 +12,15 @@ public class Meeple extends Entity {
     this.layer = layer;
   }
 
+  @Override
   public PVector getCenter() {
     return PVector.add(this.pos, new PVector(w/2, h/2));
   }
-
   public int getLayer() {
     return layer;
+  }
+  public void move(PVector m) {
+    this.pos.add(m);
   }
   
   public void update(World world) {
@@ -30,13 +33,13 @@ public class Meeple extends Entity {
     }
   }
   
-  public void moveX(float dx) {
-    pos.x += dx;
-  }
-  
   public void jump() {
+    if (isOnFloor()) this.applyForce(new PVector(0, -jmpStren));
+  }
+
+  public boolean isOnFloor() {
     float terrH = world.terr.getHeightAt(pos.x+w/2);
-    if (pos.y+h >= terrH) this.applyForce(new PVector(0, -jmpStren));
+    return pos.y+h >= terrH;
   }
   
   @Override

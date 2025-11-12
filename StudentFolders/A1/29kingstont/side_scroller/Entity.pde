@@ -22,14 +22,30 @@ public abstract class Entity extends Displayable {
         this.mass = mass;
     }
 
+    public PVector getCenter() {
+        return pos.copy();
+    };
     public PVector getVel() {
-        return vel;
+        return vel.copy();
     }
     public PVector getAcc() {
-        return acc;
+        return acc.copy();
     }
     public float getMass() {
         return mass;
+    }
+    public void setPos(PVector pos) {
+        this.pos = pos;
+    }
+    public void setVel(PVector vel) {
+        this.vel = vel;
+    }
+    public void stop() {
+        this.vel = new PVector(0, 0);
+        this.acc = new PVector(0, 0);
+    }
+    public void setAcc(PVector acc) {
+        this.acc = acc;
     }
 
     public void applyForce(PVector F) {

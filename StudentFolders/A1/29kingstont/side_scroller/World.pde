@@ -6,18 +6,18 @@ class World {
   private float t;
   private float decoDensity = 10/1600f;
   private Layer[] layers = new Layer[MAX_LAYER+1]; // 0 thru 10; 0 is foreground; 10 is background
+
   private Meeple meeple;
+  private ParticleSystem<Dirt> dirtPs;
 
   private MrKeyboard keyboard;
-
-  private ParticleSystem<Blood> bloodPs;
 
   World(int worldWidth, MrKeyboard keyboard) {
     this.terr = new Terrain(worldWidth);
     this.env = new Environment();
     this.keyboard = keyboard;
 
-    this.bloodPs = new ParticleSystem(new PVector(), (float x, float y, PVector vel, PVector acc) -> new Blood(new PVector(x, y), vel, acc));
+    this.dirtPs = new ParticleSystem(new PVector(), (float x, float y, PVector vel, PVector acc) -> new Dirt(new PVector(x, y), vel, acc));
 
     for (int i=0; i<layers.length; i++) {
       layers[i] = new Layer();
@@ -32,10 +32,12 @@ class World {
     // UPDATE PLAYER
     if (meeple != null) {
       if (keyboard.isKeyDown('A')) {
-        meeple.moveX(-meepleSpeed);
+        meeple.move(new PVector(-meepleSpeed, 0));
+        if (meeple.isOnFloor()) dirtPs.spawn(2, () -> new PVector(random(2, 5), random(-2, 0)), () -> new PVector());
       }
       if (keyboard.isKeyDown('D')) {
-        meeple.moveX(meepleSpeed);
+        meeple.move(new PVector(meepleSpeed, 0));
+        if (meeple.isOnFloor()) dirtPs.spawn(2, () -> new PVector(random(-2, -5), random(-2, 0)), () -> new PVector());
       }
       if (keyboard.isKeyDown(' ')) {
         meeple.jump();
@@ -68,16 +70,18 @@ class World {
   public void attachMeeple(Meeple meeple) {
     this.meeple = meeple;
     layers[meeple.getLayer()].submitEntity(meeple);
-    layers[1].add(new FlyingDog(meeple.pos.copy()));
+    layers[1].register(new FlyingDog(meeple.pos.copy()));
 
-    bloodPs.attachTo(meeple);
-    bloodPs.spawn(100);
-    layers[2].add(bloodPs);
+    dirtPs.attachTo(meeple, new PVector(meeple.w/2, meeple.h));
+    layers[2].register(dirtPs);
   }
 
 
   void display(PVector offset) {
     int totalItems = 0;
+
+    env.display(offset);
+
     for (int i=layers.length-1; i>=0; i--) {
       totalItems += layers[i].getNumItems();
       layers[i].display(offset);
@@ -128,7 +132,7 @@ class World {
   }
 
   public void addBush(PVector pos, float minSize, float maxSize, int layer) {
-    layers[layer].add(new Bush(pos, (int)random(minSize, maxSize), (int)random(minSize, maxSize)));
+    layers[layer].register(new Bush(pos, (int)random(minSize, maxSize), (int)random(minSize, maxSize)));
   }
 
   public void generateDeco(int minX, int maxX) {
