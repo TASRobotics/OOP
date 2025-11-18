@@ -6,7 +6,10 @@ public abstract class Displayable {
     }
 
     public PVector getPos() {
-        return pos.copy();
+        return pos;
+    }
+    public void setPos(PVector pos) {
+        this.pos = pos;
     }
     
     // protected float getBrightness(float dayPercentage) {

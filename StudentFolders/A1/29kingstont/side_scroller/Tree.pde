@@ -4,7 +4,7 @@ public class Tree extends Static {
   }
 
   // FIXME
-  protected void renderCache() {
+  public void display() {
     // cachedRender.beginDraw();
     // cachedRender.noStroke();
     // cachedRender.background(255, 0, 0);

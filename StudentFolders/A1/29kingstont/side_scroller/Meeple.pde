@@ -1,51 +1,34 @@
-public class Meeple extends Entity {
-  private float w, h;
-  private float jmpStren;
+public class Meeple extends Entity<RectBody> {
+  private float jumpVel;
   private int layer;
    
   Meeple(int layer) {
-    super(new PVector(500, 50), 1);
-    w = 40;
-    h = 80;
-    jmpStren = 10;
+    super(new RectBody(new PVector(500, 50), 1, 40, 80, false));
+    this.jumpVel = 350; // px
 
     this.layer = layer;
   }
 
-  @Override
-  public PVector getCenter() {
-    return PVector.add(this.pos, new PVector(w/2, h/2));
-  }
   public int getLayer() {
-    return layer;
+    return this.layer;
   }
   public void move(PVector m) {
-    this.pos.add(m);
+    this.getPos().add(PVector.mult(m, dt()));
   }
   
   public void update(World world) {
     super.update(world);
     
-    float terrH = world.terr.getHeightAt(pos.x+w/2);
-    if (pos.y+h >= terrH) {
-        vel.y = 0;
-        pos.y = world.terr.getHeightAt(pos.x+w/2)-h;
+    this.body.collideFloor(world.terr, world.platforms);
+  }
+  
+  public void jump(Terrain terr, ArrayList<Platform> platforms) {
+    if (isGrounded(terr, platforms)) {
+      this.getVel().add(new PVector(0, -this.jumpVel));
     }
   }
-  
-  public void jump() {
-    if (isOnFloor()) this.applyForce(new PVector(0, -jmpStren));
-  }
 
-  public boolean isOnFloor() {
-    float terrH = world.terr.getHeightAt(pos.x+w/2);
-    return pos.y+h >= terrH;
-  }
-  
-  @Override
-  public void display() {
-    fill(255);
-    rect(pos.x, pos.y, w, h);
-    text(pos.x, pos.x, pos.y-20);
+  public boolean isGrounded(Terrain terr, ArrayList<Platform> platforms) {
+    return this.body.isGrounded(terr, platforms);
   }
 }

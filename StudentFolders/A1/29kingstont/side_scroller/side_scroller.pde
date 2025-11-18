@@ -1,16 +1,17 @@
 import com.prestopy.mrkeyboard.*;
+import java.util.HashMap;
+import java.util.Map;
 
 float renderPadding = 100; // Render things __px out of screen
 float padding = 500;
 
 PVector offset; // left of screen
-float meepleSpeed = 5;
-
-boolean[] pressedDir = {false, false};
+float meepleSpeed = 150; // px/s
 
 World world;
+PVector GRAVITY = new PVector(0, 1_000); // px/s
 
-PVector GRAVITY = new PVector(0, 0.5);
+HashMap<String, Double> log = new HashMap<>();
 
 MrKeyboard keyboard;
 
@@ -31,19 +32,67 @@ void setup() {
 float baseH = 300;
 
 
+float totalTime = 0;
+float dt = 1/10f;
+
+float currentTime = millis();
+
 void draw() {
+  float newTime = millis();
+  float frameTime = (newTime - currentTime) / 1000f;
+  currentTime = newTime;
+
+  dt = min(frameTime, 1/30f);
+  frameTime -= dt;
+  totalTime += dt;
+
+  logStats("Delta time", dt);
+
+
+  long t = System.nanoTime(); // DEBUGGER ########################
+
   world.constructWorld(offset);
   world.update();
+
+  textSize(64);
+  textAlign(TOP, LEFT);
 
   // DISPLAY
   pushMatrix();
 
   translate(-offset.x, offset.y);
   
-  textSize(64);
   world.display(offset);
 
   popMatrix();
 
-  
+
+  logStats("Draw loop", (System.nanoTime() - t)/1e6); // DEBUGGER #######
+
+  fill(0, 255, 0);
+  text(round(frameRate) + " / " + totalTime, 10, 50);
+
+  int idx = 0;
+  textSize(32);
+
+  for (Map.Entry<String, Double> entry : log.entrySet()) {
+    String key = entry.getKey();
+    Double value = entry.getValue();
+
+    // if (value < 0.1) continue;
+
+    text(key + ": " + String.format("%.3f%n", value), 10, 50+32*(idx+1));
+
+    idx++;
+  }
+}
+
+float dt() { // seconds / frame
+  return dt; // frame / seconds
+}
+
+void logStats(String title, double time) {
+  double ms = time;
+
+  log.put(title, ms);
 }

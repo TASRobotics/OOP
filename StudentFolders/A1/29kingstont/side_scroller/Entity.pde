@@ -1,63 +1,69 @@
 static int entityCount = 0;
 
-public abstract class Entity extends Displayable {
+public abstract class Entity<T extends Body> {
     public int id;
-    protected PVector vel, acc;
-    protected float mass;
+    protected T body;
+    protected Body attachedBody;
 
-    Entity(PVector pos, float mass) {
-        super(pos);
+    Entity(T body) {
         this.id = entityCount;
-        this.vel = new PVector();
-        this.acc = new PVector();
-        this.mass = mass;
+        this.body = body;
+
+        this.attachedBody = null;
 
         entityCount++;
     }
 
-    Entity(PVector pos, PVector vel, PVector acc, float mass) {
-        super(pos);
-        this.vel = vel;
-        this.acc = acc;
-        this.mass = mass;
+    public T getBody() {
+        return this.body;
+    }
+    public void attachTo(Body b) {
+        this.attachedBody = b;
+    }
+    public void detach() {
+        this.attachedBody = null;
     }
 
     public PVector getCenter() {
-        return pos.copy();
+        return this.body.getPos();
     };
+    public PVector getPos() {
+        return this.body.getPos();
+    }
     public PVector getVel() {
-        return vel.copy();
+        return this.body.getVel();
     }
     public PVector getAcc() {
-        return acc.copy();
+        return this.body.getAcc();
     }
     public float getMass() {
-        return mass;
+        return this.body.getMass();
     }
     public void setPos(PVector pos) {
-        this.pos = pos;
+        this.body.setPos(pos);
     }
     public void setVel(PVector vel) {
-        this.vel = vel;
+        this.body.setVel(vel);
     }
     public void stop() {
-        this.vel = new PVector(0, 0);
-        this.acc = new PVector(0, 0);
+        this.body.setVel(new PVector(0, 0));
+        this.body.setAcc(new PVector(0, 0));
     }
     public void setAcc(PVector acc) {
-        this.acc = acc;
+        this.body.setAcc(acc);
+    }
+    public void applyForce(PVector F) {
+        this.body.applyForce(F);
     }
 
-    public void applyForce(PVector F) {
-        acc.add(F.div(mass));
-    }
 
     public void update(World world) {
-        vel.add(acc);
-        pos.add(vel);
-        acc.mult(0);
+        this.body.update();
+        if (this.attachedBody != null) {
+            this.setPos(this.attachedBody.getPos().copy());
+        }
     }
-
-    @Override
-    public abstract void display();
+    public void display() {
+        this.body.display();
+    };
 }
