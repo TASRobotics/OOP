@@ -2,7 +2,7 @@ class player {
   PVector pos;
   PVector vel;
   PVector grav;
-  float x=450;
+  float x=700;
   float y=5;
   float w=50;
   float h=50;
@@ -11,7 +11,7 @@ class player {
     pos = new PVector(x, y);
     vel = new PVector(0, 0);
     grav = new PVector(0, 0.15);
-    jumpHeight = 5;
+    jumpHeight = 7;
     w=50;
     h=50;
   }
@@ -31,13 +31,7 @@ class player {
     if (canJump == true) {
       vel = new PVector(0, -jumpHeight);
       canJump = false;
-    }
-  }
-  boolean contactWith(startplatform s) {
-    if (rectRect(pos.x, pos.y, w, h, s.pos.x, s.pos.y, s.w, s.h) == true) {
-      return true;
-    } else {
-      return false;
+      println("jumped");
     }
   }
   boolean contactWith2(mPlatform m) {
