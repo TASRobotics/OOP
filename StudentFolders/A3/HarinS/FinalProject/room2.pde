@@ -1,16 +1,18 @@
 /*
  * Room 1 - Sword Collection Room with Border Constraints
- * 
+ *
  * This room demonstrates:
  * - Border collision detection
  * - Item collection mechanics
  * - Room transition logic
  * - Conditional item rendering
- * 
+ *
  * Player can only move left to return to room 0
  */
 
 void screen2() {
+  int moveEvery = 3;
+  int lastMoved = millis();
   // Rectangle 1
   fill(255, 165, 0); // Bright Orange
   rect(150, 120, 180, 90); // x, y, width, height
@@ -26,21 +28,16 @@ void screen2() {
   // Rectangle 4
   fill(255, 20, 147); // Deep Pink
   rect(600, 400, 160, 90);
-  
-  //leftbutton
-  fill(255);
-  rect(30, 285, 50, 25);
-  triangle(20, 300, 50, 350, 50, 250);
-  
-  //rightbutton
-  fill(255);
-  rect(720, 285, 50, 25);
-  triangle(780, 300, 750, 350, 750, 250);
-  
+
   // Check for sword collection and render sword if not collected
   //checkIfPlayerIsTouchingSword(); // Check if player is touching the sword
-  if(!playerHasKeyB){ // Only draw sword if player hasn't collected it
-   drawKeyB(); // Draw sword on the floor
+  if (!playerHasKeyB) { // Only draw key if player hasn't collected it
+    drawKeyB();
+    if (millis() >= lastMoved + moveEvery) {
+      keybx = int(random (50, 700));
+      keyby = int(random (50, 500));
+      lastMoved = millis();
+    }
   }
 }
 

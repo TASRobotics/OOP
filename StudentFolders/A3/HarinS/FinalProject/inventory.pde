@@ -23,4 +23,9 @@ void inventory(){
     textSize(50);
     text("Blue Key", 100, 200);
   }
+  if(playerHasKeyG){
+    fill(0, 255, 0);
+    textSize(50);
+    text("Green Key", 100, 300);
+  }
 }

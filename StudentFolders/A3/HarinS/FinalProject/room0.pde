@@ -9,12 +9,8 @@ void screen0() {
   rect(350, 200, 100, 150);
   
   //door blue
-  fill(0, 0, 255);
-  rect(500, 200, 100, 150);
-  
-  //rightbutton
-  fill(255);
-  rect(720, 285, 50, 25);
-  triangle(780, 300, 750, 350, 750, 250);
-  
+  if (done == false){
+    fill(0, 0, 255);
+    rect(500, 200, 100, 150);
+  }
 }

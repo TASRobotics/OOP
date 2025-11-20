@@ -22,16 +22,6 @@ void screen1() {
   fill(255, 20, 147); // Deep Pink
   rect(600, 400, 160, 90);
   
-  //leftbutton
-  fill(255);
-  rect(30, 285, 50, 25);
-  triangle(20, 300, 50, 350, 50, 250);
-  
-  //rightbutton
-  fill(255);
-  rect(720, 285, 50, 25);
-  triangle(780, 300, 750, 350, 750, 250);
-  
   if(!playerHasKeyR){ // Only draw sword if player hasn't collected it
    drawKeyR(); // Draw red key on the floor
      keyrx += keyrxs;
