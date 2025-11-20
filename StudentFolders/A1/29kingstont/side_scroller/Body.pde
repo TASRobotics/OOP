@@ -1,18 +1,22 @@
-public abstract class Body extends Displayable {
+public abstract class Body {
+    protected PVector pos, prevPos;
     protected PVector vel, acc;
     protected float mass;
 
     protected boolean isStatic;
 
     Body(PVector pos, float mass, boolean isStatic) {
-        super(pos);
-
+        this.pos = pos;
+        this.prevPos = pos;
         this.vel = new PVector();
         this.acc = new PVector();
         this.mass = mass;
         this.isStatic = isStatic;
     }
 
+    public PVector getPos() {
+        return this.pos;
+    }
     public PVector getVel() {
         return this.vel;
     }
@@ -21,6 +25,10 @@ public abstract class Body extends Displayable {
     }
     public float getMass() {
         return this.mass;
+    }
+    public void setPos(PVector pos) {
+        if (isStatic) throw new Error("Cannot set position on static body");
+        this.pos = pos;
     }
     public void setVel(PVector vel) {
         if (isStatic) throw new Error("Cannot set velocity on static body");
@@ -37,18 +45,19 @@ public abstract class Body extends Displayable {
         this.acc.y += F.y / this.mass;
     }
 
-    public void update() {
+    public void update(World world) {
         if (isStatic) return;
+
+        this.prevPos = this.pos.copy();
 
         this.vel.add(PVector.mult(this.acc, dt()));
         this.pos.add(PVector.mult(this.vel, dt()));
         this.acc.mult(0);
+
+        this.collide(world.terr, world.platforms);
     }
 
-    public abstract void collideFloor(Terrain terr, ArrayList<Platform> platforms);
+    public abstract void collide(Terrain terr, ArrayList<Platform> platforms);
     public abstract boolean isGrounded(Terrain terr);
     public abstract boolean isGrounded(Terrain terr, ArrayList<Platform> platforms);
-
-    public abstract void display();
-    public abstract void display(color c);
 }

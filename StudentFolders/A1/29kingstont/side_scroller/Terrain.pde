@@ -32,6 +32,8 @@ class Terrain {
     int layerH = 20;
     int dC = 2;
     for (int i=0; i<layers; i++) {
+      stroke(0);
+      strokeWeight(1);
       fill(Math.max(0, 72-i*dC), Math.max(0, 50-i*dC), Math.max(0, 27-i*dC));
       rect(minX, height-baseH+(layers-i-1)*layerH, maxX-minX, layerH);
     }

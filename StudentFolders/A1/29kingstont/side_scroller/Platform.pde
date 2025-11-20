@@ -10,6 +10,9 @@ class Platform extends Displayable {
     public PVector getPos() {
         return this.platform.getPos();
     }
+    public RectBody getBody() {
+        return this.platform;
+    }
 
     public float getW() {
         return this.platform.getW();
@@ -18,22 +21,11 @@ class Platform extends Displayable {
         return this.platform.getH();
     }
 
-    public boolean intersects(RectBody body) {
-        PVector pos = body.getPos();
-        PVector thisPos = this.getPos();
-
-        return pos.x+body.getW() >= thisPos.x && pos.x <= thisPos.x+this.getW() && pos.y+body.getH() >= thisPos.y;
-    }
-    public boolean intersects(CircleBody body) {
-        PVector pos = body.getPos();
-        PVector thisPos = this.getPos();
-        return pos.x >= thisPos.x && pos.x <= thisPos.x+this.getW() && pos.y+body.getR() >= thisPos.y;
-    }
-
     public void display() {
         fill(255);
         stroke(0);
-        strokeWeight(2);
+        strokeWeight(1);
+
         rect(pos.x, pos.y, this.getW(), this.getH());
     }
 }

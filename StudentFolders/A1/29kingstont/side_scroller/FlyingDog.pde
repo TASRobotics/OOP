@@ -3,7 +3,7 @@ public class FlyingDog extends Entity<CircleBody> {
     private float maxForce;
 
     FlyingDog(PVector pos) {
-        super(new CircleBody(pos, 1, 50, false));
+        super(new CircleBody(pos, 1, 25, false));
         this.maxSpeed = 400;
         this.maxForce = 1_700;
     }
@@ -35,11 +35,15 @@ public class FlyingDog extends Entity<CircleBody> {
         steer.limit(maxForce);
         applyForce(steer);
 
-        this.body.collideFloor(world.terr, world.platforms);
+        this.body.collide(world.terr, world.platforms);
     }
 
     @Override
     public void display() {
-        this.body.display(color(255, 0, 0));
+        stroke(0);
+        strokeWeight(1);
+        
+        fill(255, 0, 0);
+        circle(this.getPos().x, this.getPos().y, this.getBody().getR()*2);
     };
 }

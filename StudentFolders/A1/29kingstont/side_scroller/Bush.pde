@@ -6,7 +6,7 @@ class Bush extends Static {
   public void display() {
     fill(8, 107, 57, 255);
     stroke(0);
-    strokeWeight(2);
+    strokeWeight(1);
     ellipse(pos.x, pos.y, w, h);
   }
 }

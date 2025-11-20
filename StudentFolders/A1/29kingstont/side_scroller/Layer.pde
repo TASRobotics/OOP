@@ -32,6 +32,12 @@ public class Layer {
         entities.removeIf(e -> e.id == id);
     }
 
+    void applyForce(PVector F) {
+        for (Entity e : entities) {
+            e.applyForce(F);
+        }
+    }
+
     void update(World world) {
         for (Entity e : entities) {
             e.update(world);
@@ -50,13 +56,6 @@ public class Layer {
             }
         }
 
-        
-        for (Entity e : entities) {
-            if (e.getPos().x >= offset.x && e.getPos().x <= offset.x + width) {
-                e.display();
-            }
-        }
-
         for (ParticleSystem ps : particleSystems) {
             // if (d.pos.x >= offset.x && d.pos.x <= offset.x + width) {
                 ps.display();
@@ -64,8 +63,14 @@ public class Layer {
         }
 
         for (Platform p : platforms) {
-            if (p.getPos().x - p.getW() >= offset.x && p.getPos().x <= offset.x + width) {
+            if (p.getPos().x + p.getW() >= offset.x && p.getPos().x <= offset.x + width) {
                 p.display();
+            }
+        }
+
+        for (Entity e : entities) {
+            if (e.getPos().x >= offset.x && e.getPos().x <= offset.x + width) {
+                e.display();
             }
         }
     }

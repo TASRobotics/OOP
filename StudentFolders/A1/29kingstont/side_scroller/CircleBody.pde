@@ -15,16 +15,16 @@ public class CircleBody extends Body {
     }
 
     @Override
-    public void collideFloor(Terrain terr, ArrayList<Platform> platforms) {
+    public void collide(Terrain terr, ArrayList<Platform> platforms) {
         if (isGrounded(terr, platforms)) {
             float bestY = terr.getHeightAt(this.pos.x)-this.r;
 
-            for (Platform p : platforms) {
-                if (p.intersects(this)) {
-                    bestY = p.getPos().y-this.r;
-                    break;
-                }
-            }
+            // for (Platform p : platforms) {
+            //     if (Collision.check(p, this)) {
+            //         bestY = p.getPos().y-this.r;
+            //         break;
+            //     }
+            // }
 
             this.vel.y = 0;
             this.pos.y = bestY;
@@ -42,24 +42,12 @@ public class CircleBody extends Body {
         float terrH = terr.getHeightAt(this.pos.x);
         boolean isOnFloor = this.pos.y+this.r >= terrH;
         boolean isOnPlatform = false;
-        for (Platform p : platforms) {
-            if (p.intersects(this)) {
-                isOnPlatform = true;
-                break;
-            }
-        }
+        // for (Platform p : platforms) {
+        //     if (p.intersects(this)) {
+        //         isOnPlatform = true;
+        //         break;
+        //     }
+        // }
         return isOnFloor || isOnPlatform;
-    }
-
-    @Override
-    public void display() {
-        fill(255);
-        circle(this.pos.x, this.pos.y, this.r*2);
-    }
-
-    @Override
-    public void display(color c) {
-        fill(c);
-        circle(this.pos.x, this.pos.y, this.r*2);
     }
 }

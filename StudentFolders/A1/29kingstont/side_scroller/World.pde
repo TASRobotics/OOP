@@ -10,6 +10,7 @@ class World {
   private Layer[] layers = new Layer[MAX_LAYER+1]; // 0 thru 10; 0 is foreground; 10 is background
 
   private Meeple meeple;
+  private ArrayList<Enemy> enemies;
   private ParticleSystem<Dirt> dirtPs;
 
   private MrKeyboard keyboard;
@@ -17,6 +18,7 @@ class World {
   World(int worldWidth, MrKeyboard keyboard) {
     this.terr = new Terrain(worldWidth);
     this.platforms = new ArrayList<>();
+    this.enemies = new ArrayList<>();
     this.env = new Environment();
     this.keyboard = keyboard;
 
@@ -26,7 +28,15 @@ class World {
       this.layers[i] = new Layer();
     }
 
-    createPlatform(new PVector(500, 500), 200, 50);
+    createPlatform(new PVector(100, 500), 200, 50);
+    createPlatform(new PVector(300, 450), 200, 50);
+    createPlatform(new PVector(500, 400), 200, 50);
+
+    createEnemy(new Roofus(new PVector(500, 500)));
+  }
+  
+  public Meeple getMeeple() {
+    return this.meeple;
   }
 
   public void attachMeeple(Meeple meeple) {
@@ -34,15 +44,14 @@ class World {
     
     this.layers[meeple.getLayer()].register(meeple);
 
-    // Register dog
-    FlyingDog dog = new FlyingDog(meeple.getPos().copy());
-    this.layers[1].register(dog);
-
-    // this.meeple.attachTo(dog.getBody());
-
+    // Register dirt particle system
     RectBody meepleBody = meeple.getBody();
     dirtPs.attachTo(meeple, new PVector(meepleBody.getW()/2, meepleBody.getH()));
     layers[2].register(dirtPs);
+
+    // Register dog
+    // FlyingDog dog = new FlyingDog(meeple.getPos().copy());
+    // this.layers[1].register(dog);
   }
 
   public int getWorldWidth() {
@@ -56,11 +65,11 @@ class World {
     if (meeple != null) {
       if (this.keyboard.isKeyDown('A')) {
         this.meeple.move(new PVector(-meepleSpeed, 0));
-        if (meeple.isGrounded(this.terr, this.platforms)) dirtPs.spawn(2, () -> new PVector(random(2, 5), random(-2, 0)), () -> new PVector());
+        if (meeple.isGrounded(this.terr)) dirtPs.spawn(2, () -> new PVector(random(2, 5), random(-2, 0)), () -> new PVector());
       }
       if (this.keyboard.isKeyDown('D')) {
         this.meeple.move(new PVector(meepleSpeed, 0));
-        if (meeple.isGrounded(this.terr, this.platforms)) dirtPs.spawn(2, () -> new PVector(random(-2, -5), random(-2, 0)), () -> new PVector());
+        if (meeple.isGrounded(this.terr)) dirtPs.spawn(2, () -> new PVector(random(-2, -5), random(-2, 0)), () -> new PVector());
       }
       if (this.keyboard.isKeyDown(' ')) {
         this.meeple.jump(this.terr, this.platforms);
@@ -75,9 +84,6 @@ class World {
       } else if (meeplePos.x-offset.x <= padding) {
         offset.x -= padding-(meeplePos.x-offset.x);
       }
-      
-      this.meeple.applyForce(GRAVITY);
-      this.meeple.update(world);
     }
 
     // UPDATE ENTITIES
@@ -88,10 +94,15 @@ class World {
       // ctx.env = env;
       // ctx.meeple = meeple;
 
+      this.layers[i].applyForce(GRAVITY);
       this.layers[i].update(this);
-    }
+    } 
 
     this.env.advanceTime();
+
+    if (this.meeple.getHealth() <= 0) {
+      setGameOver(true);
+    }
 
 
     logStats("Update", (System.nanoTime() - t)/1e6); // DEBUGGER #######
@@ -105,10 +116,8 @@ class World {
     this.env.display(offset);
 
     for (int i=layers.length-1; i>=0; i--) {
-      long t2 = System.nanoTime(); // DEBUGGER ########################
       totalItems += this.layers[i].getNumItems();
       this.layers[i].display(offset);
-      logStats("Layer "+i, (System.nanoTime() - t2)/1e6);
     }
 
 
@@ -139,8 +148,12 @@ class World {
 
   public void createPlatform(PVector pos, int w, int h) {
     Platform p = new Platform(pos, w, h);
-    layers[0].register(p);
+    layers[2].register(p);
     platforms.add(p);
+  }
+  public void createEnemy(Enemy e) {
+    layers[2].register(e);
+    enemies.add(e);
   }
 
 
@@ -148,7 +161,6 @@ class World {
   // "Construct world" just sounded cool, but generateWorld prob is better name no
   public void constructWorld(PVector offset) {
     int constructW = width;
-    println(constructW);
 
     if (offset.x <= terr.minX + renderPadding) {
       int maxX = terr.minX;
