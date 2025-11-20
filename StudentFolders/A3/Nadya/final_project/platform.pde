@@ -1,10 +1,19 @@
 class Platform {
-  float x = 100;
-  float y = 300;
-  float w = 80;
-  float h = 10;
+  float x, y, w = 80, h = 15;
+  boolean landed = false;
+
+  Platform(float x, float y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  Platform() {
+    this.x = 0;
+    this.y = 0;
+  }
 
   void display() {
-    rect(x, y, w, h);
+    fill(#F8FA8D);
+    rect(x, y, w, h, 5);
   }
 }
