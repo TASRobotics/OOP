@@ -58,10 +58,12 @@ void doYouHaveKey() {
   }
 }
 
-void pause() {
-  if (screen == -3) {
+void pause(boolean firsttime) {
+  if (screen == -3 && !firsttime) {
     stopped = millis();
     stop = true;
+    //------
+    
     if (redx <= 400 && redx >= 0 && redy <= 300 && redy >= 0) {
       redon = true;
     }
@@ -74,9 +76,18 @@ void pause() {
     if (redx <= 800 && redx >= 400 && redy <= 600 && redy >= 300) {
       greenon = true;
     }
-    if (redon && yellowon && greenon && blueon){
+    if (redon && yellowon && greenon && blueon) {
       if (pointRect(mouseX, mouseY, 300, 275, 200, 50)) {
         jigsaw = true;
+      }
+    }
+    if (jigsaw) {
+      for (int i = pieces.length - 1; i >= 0; i--) {
+        if (pieces[i] != null && pieces[i].over(mouseX, mouseY)) {
+          selected = pieces[i];
+          selected.startDrag(mouseX, mouseY);
+          break;
+        }
       }
     }
   }

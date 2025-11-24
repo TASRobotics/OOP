@@ -1,5 +1,5 @@
 void screen0() {
-
+  
   //door red
   fill(255, 0, 0);
   rect(200, 200, 100, 150);

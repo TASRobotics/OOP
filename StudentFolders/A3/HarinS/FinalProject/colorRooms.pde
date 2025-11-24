@@ -14,6 +14,7 @@ int mistake = 4;
 void bluedoor() {
   fill(255);
   textSize(50);
+  textAlign(LEFT);
   text("MEMORIZE", 500, 200);
   text("THE BLUE", 500, 250);
   text("TILES!", 500, 300);
@@ -127,19 +128,15 @@ boolean greenon = false;
 boolean redon = false;
 boolean yellowon = false;
 boolean stop = false;
-boolean jigsaw = false;
 
 
 void pieceSetup() {
-  
-  Piece[] pieces = new Piece[4];
-  Piece selected = null;
-  
   pieces[0] = new Piece(50, 50, 100, 100, color(255, 0, 0));
   pieces[1] = new Piece(250, 50, 100, 100, color(0, 255, 0));
   pieces[2] = new Piece(50, 250, 100, 100, color(0, 0, 255));
   pieces[3] = new Piece(250, 250, 100, 100, color(255, 255, 0));
 }
+
 void reddoor() {
   if (jigsaw == false) {
     fill(255);
@@ -196,49 +193,8 @@ void reddoor() {
     }
   }
   if (jigsaw) {
-    for (Pieces p : pieces) {
-    p.show();
-  }
-  }
-}
-
-class Pieces {
-  float x, y, w, h;
-  color c;
-  boolean dragging = false;
-  float offsetX, offsetY;
-  Pieces (float x, float y, float w, float h, color c) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.c = c;
-  }
-
-  void show() {
-    fill(c);
-    rect(x, y, w, h);
-  }
-
-  boolean over(float mx, float my) {
-    return mx >= x && mx <= x + w &&
-           my >= y && my <= y + h;
-  }
-
-  void startDrag(float mx, float my) {
-    dragging = true;
-    offsetX = mx - x;
-    offsetY = my - y;
-  }
-
-  void drag(float mx, float my) {
-    if (dragging) {
-      x = mx - offsetX;
-      y = my - offsetY;
+    for (Piece p : pieces) {
+      p.show();
     }
-  }
-
-  void stopDrag() {
-    dragging = false;
   }
 }

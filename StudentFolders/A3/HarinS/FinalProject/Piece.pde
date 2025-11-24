@@ -39,3 +39,16 @@ class Piece {
     dragging = false;
   }
 }
+
+void mouseDragged() {
+  if (jigsaw && selected != null) {
+    selected.drag(mouseX, mouseY);
+  }
+}
+
+void mouseReleased() {
+  if (jigsaw && selected != null) {
+    selected.stopDrag();
+    selected = null;
+  }
+}

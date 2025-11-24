@@ -24,6 +24,9 @@ int keygy = 300;
 color[][] colors = new color[4][4];
 boolean clicked[][] = new boolean[4][4];
 
+Piece[] pieces = new Piece[4];
+Piece selected = null;
+boolean jigsaw = false;
 
 //PVector rectx
 
@@ -174,6 +177,8 @@ boolean keyDown(int kcode) {
 }
 
 void mousePressed() {
+  int prevScreen = screen;
+  
   doYouHaveKey();
   if (pointRect(mouseX, mouseY, 30, 285, 50, 25) && screen != 0) {
     screen -= 1;
@@ -189,6 +194,7 @@ void mousePressed() {
     memoryGameClickCheck();
   }
   if (screen == -3) {
-    pause();
+    
+    pause(screen != prevScreen);
   }
 }
