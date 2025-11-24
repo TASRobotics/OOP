@@ -4,7 +4,7 @@ class Platform extends Displayable {
     // THERE EXIST TWO POSITIONS...
     Platform(PVector pos, float w, float h) {
         super(pos);
-        platform = new RectBody(pos, 1, w, h, true);
+        platform = new RectBody(pos, w, h, true);
     }
 
     public PVector getPos() {

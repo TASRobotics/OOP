@@ -1,7 +1,11 @@
 public class CircleBody extends Body {
     float r;
 
-    CircleBody(PVector pos, float mass, float r, boolean isStatic) {
+    CircleBody(PVector pos, float r, boolean isStatic) {
+        super(pos, 0, isStatic);
+        this.r = r;
+    }
+    CircleBody(PVector pos, float r, float mass, boolean isStatic) {
         super(pos, mass, isStatic);
         this.r = r;
     }

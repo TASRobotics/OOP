@@ -1,29 +1,31 @@
 public abstract class Enemy<T extends Body> extends Entity<T> {
-    int attackSpeed; // ms
-    int movementSpeed; // px
-    Integer lastAttacked;
+    private int cooldown; // ms
+    protected float damage;
+    private Integer lastAttacked;
 
-    Enemy(T body, int attackSpeed) {
-        super(body);
-        this.movementSpeed = 1;
-        this.attackSpeed = attackSpeed;
+    Enemy(T body, int movementSpeed, float damage, int cooldown, int maxHealth) {
+        super(body, maxHealth, movementSpeed);
+        this.damage = damage;
+        this.cooldown = cooldown;
     }
 
     protected abstract void move(Meeple meeple);
 
     protected boolean cooldownSatisfied() {
         if (lastAttacked == null) return true;
-        return millis() - lastAttacked >= attackSpeed;
+        return millis() - lastAttacked >= cooldown;
     }
     protected void resetCooldown() {
         this.lastAttacked = null;
     }
 
     protected abstract boolean attackConditionSatisfied(Meeple meeple);
-    protected abstract void attack(Meeple meeple);
+    protected abstract void attack(World world);
     
     @Override
     public void update(World world) {
+        super.update(world);
+
         Meeple meeple = world.getMeeple();
 
         if (meeple != null) {
@@ -31,15 +33,13 @@ public abstract class Enemy<T extends Body> extends Entity<T> {
 
             if (this.attackConditionSatisfied(meeple)) {
                 if (this.cooldownSatisfied()) {
-                    this.attack(meeple);
+                    this.attack(world);
                     lastAttacked = millis();
                 }
             } else {
                 resetCooldown();
             }
         }
-
-        super.update(world);
     }
     public abstract void display();
 }

@@ -1,7 +1,12 @@
 public class RectBody extends Body {
     float w, h;
 
-    RectBody(PVector pos, float mass, float w, float h, boolean isStatic) {
+    RectBody(PVector pos, float w, float h, boolean isStatic) {
+        super(pos, 0, isStatic);
+        this.w = w;
+        this.h = h;
+    }
+    RectBody(PVector pos, float w, float h, float mass, boolean isStatic) {
         super(pos, mass, isStatic);
         this.w = w;
         this.h = h;

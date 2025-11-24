@@ -41,7 +41,7 @@ public class Environment {
     return p;
   }
 
-  public void display(PVector offest) {
+  public void display(PVector offset) {
     fill(world.env.getColor());
     rect(offset.x, offset.y, width, height);
   }

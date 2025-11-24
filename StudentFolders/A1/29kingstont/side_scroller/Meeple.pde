@@ -2,33 +2,68 @@ public class Meeple extends Entity<RectBody> {
   private float jumpVel;
   private int layer;
   private boolean isHatOn;
+
+  private Item currentlyHeld;
    
   Meeple(int layer) {
-    super(new RectBody(new PVector(500, 50), 1, 40, 80, false));
+    super(new RectBody(new PVector(500, 50), 40, 80, 1, false), 200, 200);
     this.jumpVel = 600; // px
 
     this.layer = layer;
     this.isHatOn = true;
+    this.currentlyHeld = null;
   }
 
   public int getLayer() {
     return this.layer;
   }
-  public void move(PVector m) {
-    this.getPos().add(PVector.mult(m, dt()));
+  public float getW() {
+    return this.getBody().getW();
+  }
+  public float getH() {
+    return this.getBody().getH();
   }
   
+
+  public void setCurrentlyHeld(Item i) {
+    this.currentlyHeld = i;
+  }
+
+
+  // ACTIONS
+  public void move(boolean isRight) {
+    if (isRight) this.getPos().x += movementSpeed*dt();
+    else this.getPos().x -= movementSpeed*dt();
+
+    this.body.setIsFacingRight(isRight);
+  }
   public void jump(Terrain terr, ArrayList<Platform> platforms) {
     if (isGrounded(terr, platforms)) {
       this.getVel().add(new PVector(0, -this.jumpVel));
     }
   }
 
+  public void attack(World world) {
+    if (currentlyHeld instanceof Weapon) {
+      Weapon weapon = (Weapon) currentlyHeld;
+      ArrayList<Entity> targets = new ArrayList<Entity>();
+      targets.addAll(world.enemies);
+
+      weapon.use(this, targets);
+    }
+  }
+  
+
   public boolean isGrounded(Terrain terr) {
     return this.body.isGrounded(terr);
   }
   public boolean isGrounded(Terrain terr, ArrayList<Platform> platforms) {
     return this.body.isGrounded(terr, platforms);
+  }
+
+  @Override
+  void update(World world) {
+    super.update(world);
   }
 
   @Override
@@ -82,6 +117,6 @@ public class Meeple extends Entity<RectBody> {
 
     popMatrix();
 
-    displayHp();
+    currentlyHeld.handheldDisplay(this);
   }
 }

@@ -5,19 +5,39 @@ public abstract class Entity<T extends Body> {
     protected T body;
     protected float health;
     protected float maxHealth;
+    protected boolean isDead;
+    protected int movementSpeed; // px
 
-    Entity(T body) {
+    Entity(T body, int maxHeath, int movementSpeed) {
         this.id = entityCount;
         this.body = body;
 
-        this.maxHealth = 100;
+        this.maxHealth = maxHeath;
         this.health = this.maxHealth;
+        this.isDead = false;
+
+        this.movementSpeed = movementSpeed;
 
         entityCount++;
     }
 
     public T getBody() {
         return this.body;
+    }
+
+    public int getMovementSpeed() {
+        return this.movementSpeed;
+    }
+
+    public boolean isDead() {
+        return this.isDead;
+    }
+    public void damage(float h) {
+        this.health -= min(this.health, h);
+        if (this.health == 0) this.isDead = true;
+    }
+    public void heal(float h) {
+        this.health += min(this.maxHealth-this.health, h);
     }
 
     public PVector getCenter() {
@@ -56,13 +76,6 @@ public abstract class Entity<T extends Body> {
         this.body.setAcc(acc);
     }
 
-    public void damage(float h) {
-        this.health -= min(this.health, h);
-    }
-    public void heal(float h) {
-        this.health += min(this.maxHealth-this.health, h);
-    }
-
     public void applyForce(PVector F) {
         this.body.applyForce(F);
     }
@@ -74,27 +87,26 @@ public abstract class Entity<T extends Body> {
     public abstract void display();
 
     public void displayHp() {
+        if (this.getHealth() == this.getMaxHealth()) return;
+
         float barX = 0;
         float barY = 0;
-        float barW = 0;
-        float barH = 0;
+        float barW = 80;
+        float barH = 10;
 
         if (body instanceof RectBody) {
             RectBody body = (RectBody) this.body;
-            barW = 80;
-            barH = 15;
             barX = this.getPos().x+body.getW()/2-barW/2;
             barY = this.getPos().y - 50;
         } else if (body instanceof CircleBody) {
             barX = this.getPos().x;
             barY = this.getPos().y - 50;
-            barW = 80;
-            barH = 15;
+            
         }
 
         stroke(0);
         strokeWeight(1);
-        fill(255/2);
+        fill(80);
         rect(barX, barY, barW, barH); 
 
         fill(255, 0, 0);

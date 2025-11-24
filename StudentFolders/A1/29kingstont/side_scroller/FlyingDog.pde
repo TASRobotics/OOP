@@ -1,10 +1,8 @@
 public class FlyingDog extends Entity<CircleBody> {
-    private float maxSpeed;
     private float maxForce;
 
     FlyingDog(PVector pos) {
-        super(new CircleBody(pos, 1, 25, false));
-        this.maxSpeed = 400;
+        super(new CircleBody(pos, 25, 1, false), 100, 400);
         this.maxForce = 1_700;
     }
 
@@ -21,15 +19,15 @@ public class FlyingDog extends Entity<CircleBody> {
         float padding = 10;
         if (pos.y >= world.terr.getHeightAt(pos.x) - padding) {
             float distToFloor = Math.max(0, world.terr.getHeightAt(pos.x) - pos.y);
-            desired = new PVector(vel.x, -map(distToFloor, 0, padding, maxSpeed, maxSpeed/2));
+            desired = new PVector(vel.x, -map(distToFloor, 0, padding, movementSpeed, movementSpeed/2));
         }
 
         
         desired.normalize();
 
         if (d < 300) {
-            desired.mult(map(d, 0, 100, 0, maxSpeed));
-        } else desired.mult(maxSpeed);
+            desired.mult(map(d, 0, 100, 0, movementSpeed));
+        } else desired.mult(movementSpeed);
     
         PVector steer = PVector.sub(desired, vel);
         steer.limit(maxForce);

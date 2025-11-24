@@ -38,8 +38,19 @@ public class Layer {
         }
     }
 
+
+    void cleanup() {
+        for (int i = entities.size() - 1; i >= 0; i--) {
+            if (entities.get(i).isDead()) {
+                entities.remove(i);
+            }
+        }
+    }
+
     void update(World world) {
-        for (Entity e : entities) {
+        cleanup();
+        for (int i = entities.size()-1; i>=0; i--) {
+            Entity e = entities.get(i);
             e.update(world);
         }
         for (ParticleSystem d : particleSystems) {

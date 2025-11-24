@@ -10,22 +10,28 @@ class Terrain {
   }
   
   public float getHeightAt(float x) {
-    if (x > maxX || x < minX) return 999;
+    if (x > this.maxX || x < this.minX) return 999;
     
-    return height-baseH;
+    return height-this.baseH;
+  }
+  public int getMinX() {
+    return this.minX;
+  }
+  public int getMaxX() {
+    return this.maxX;
   }
   
   public void constructLeft(int len) {
-    minX -= len;
+    this.minX -= len;
   }
   public void constructRight(int len) {
-    maxX += len;
+    this.maxX += len;
   }
 
   // TODO: take in offset as param and only render till renderPadding
   public void display() {
     fill(72, 50, 27);
-    rect(minX, height-baseH, maxX-minX, baseH);
+    rect(this.minX, height-this.baseH, this.maxX-this.minX, this.baseH);
     
     // cascade layers
     int layers = 5;
@@ -35,7 +41,7 @@ class Terrain {
       stroke(0);
       strokeWeight(1);
       fill(Math.max(0, 72-i*dC), Math.max(0, 50-i*dC), Math.max(0, 27-i*dC));
-      rect(minX, height-baseH+(layers-i-1)*layerH, maxX-minX, layerH);
+      rect(this.minX, height-this.baseH+(layers-i-1)*layerH, this.maxX-this.minX, layerH);
     }
   }
 }
