@@ -1,6 +1,31 @@
-int MAX_LAYER = 10;
+static final int MAX_LAYER = 4;
+static final int MAX_ITEMS = 5; // must be less than 9
+static int CHUNK_W; // Will be set to half of width
+static final int RENDER_CHUNK_RADIUS = 0; // max # chunks from the current on-screen chunks that will be rendered
+static final int LIVE_CHUNK_RADIUS = 2; // max # chunks away from the current on-screen chunks that will be updated
+static final boolean MINIMIZE_GRAPHICS = true; // minimize details
 
-class World {
+static final float TRAMPOLINE_SPAWN_CHANCE = 0.25; // [0, 1]
+static final int TRAMPOLINE_W = 100;
+static final int TRAMPOLINE_H = 20;
+
+// Debugging
+static final boolean SPAWN_ENEMIES = true; // default: true
+static final boolean CONSTANT_DAYTIME = false; // default: false
+static final boolean ALLOW_FLYING = false; // default: false
+
+public interface Displayable {
+  public void display();
+}
+public interface HasHealth {
+  public float getHealth();
+  public float getMaxHealth();
+  public void damage(float x);
+  public void heal(float x);
+  public void setHealth(float x);
+}
+
+class World implements Displayable {
   private MrKeyboard keyboard;
 
   private PVector offset;
@@ -8,7 +33,8 @@ class World {
   private float constructPadding = 100; // Construct the world when viewport is 100 px away from void
   private Layer[] layers = new Layer[MAX_LAYER+1]; // 0 thru 10; 0 is foreground; 10 is background
 
-  private Terrain terr;
+  private Terrain rightsideUpTerr;
+  private Terrain upsideDownTerr; 
   private Environment env;
   private float decoDensity = 5/1600f;
 
@@ -16,6 +42,8 @@ class World {
   private ParticleSystem<Dirt> dirtPs;
 
   private ArrayList<Item> items;
+  private int selectedItemIndex;
+
   private ArrayList<Platform> platforms;
   private ArrayList<Enemy> enemies;
   private ArrayList<Bullet> bullets;
@@ -24,19 +52,28 @@ class World {
     this.keyboard = keyboard;
 
     this.offset = new PVector();
-    this.terr = new Terrain(worldWidth);
+    this.rightsideUpTerr = new Terrain(worldWidth, false);
+    this.upsideDownTerr = new Terrain(worldWidth, true);
     this.env = new Environment();
 
     this.items = new ArrayList<>();
+    this.selectedItemIndex = 0;
+
     this.platforms = new ArrayList<>();
     this.enemies = new ArrayList<>();
     this.bullets = new ArrayList<>();
+
+    CHUNK_W = width/2;
 
     for (int i=0; i<layers.length; i++) {
       this.layers[i] = new Layer();
     }
 
-    this.items.add(new Knife());
+    addItem(new Flag());
+    addItem(new Knife());
+    addItem(new Knife(0, 10, 50, 25));
+    addItem(new ShootingThing());
+    // addItem(new ShootingThing(0, 100, 100000, 0));
 
     createPlatform(new PVector(100, 500), 200, 50);
     createPlatform(new PVector(300, 450), 200, 50);
@@ -52,56 +89,114 @@ class World {
   public PVector getOffset() {
     return this.offset;
   }
+  public int getWorldWidth() {
+    return this.rightsideUpTerr.maxX - this.rightsideUpTerr.minX;
+  }
+
+  public ArrayList<Item> getItems() {
+    return this.items;
+  }
+  public int getSelectedItemIndex() {
+    return this.selectedItemIndex;
+  }
+  public int itemCapacityLeft() {
+    return MAX_ITEMS-this.items.size();
+  }
+  public void addItem(Item item) {
+    if (itemCapacityLeft() > 0) {
+      this.items.add(item);
+    }
+  }
+  public void setSelectedItem(int i) {
+    if (i >= 0 && i < MAX_ITEMS) {
+      Item item = (i < items.size()) ? items.get(i) : null;
+      this.meeple.setCurrentlyHeldItem(item);
+      this.selectedItemIndex = i;
+    }
+  }
 
   public void attachMeeple(Meeple meeple) {
     // Register meeple
     this.meeple = meeple;
-    if (!items.isEmpty()) this.meeple.setCurrentlyHeld(items.get(0));
+    if (!items.isEmpty()) this.meeple.setCurrentlyHeldItem(items.get(this.selectedItemIndex));
     
     this.layers[meeple.getLayer()].register(meeple);
 
 
     // Register dirt particle system
-    this.dirtPs = new ParticleSystem(new PVector(), (float x, float y, PVector vel, PVector acc) -> new Dirt(new PVector(x, y), vel, acc));
+    dirtPs = new ParticleSystem(new PVector(), (float x, float y, PVector vel, PVector acc) -> new Dirt(new PVector(x, y), vel, acc));
     RectBody meepleBody = meeple.getBody();
     dirtPs.attachTo(meeple, new PVector(meepleBody.getW()/2, meepleBody.getH()));
 
-    this.layers[meeple.getLayer()].register(dirtPs);
+    layers[meeple.getLayer()].register(dirtPs);
   }
 
-  public int getWorldWidth() {
-    return this.terr.maxX - this.terr.minX;
+  private void spawnEnemies(float minX, float maxX) {
+    if (!SPAWN_ENEMIES) return;
+
+    int numEnemies = int(random(1, 3));
+    float dayPercentage = env.getDayPercentage();
+
+    if (dayPercentage < 0.25) {
+      numEnemies = int(random(3, 8));
+    }
+
+    for (int i=0; i<numEnemies; i++) {
+      float randX = random(minX, maxX);
+      PVector pos = new PVector(randX, rightsideUpTerr.getHeightAt(randX));
+
+      createEnemy(new BoringZombie(pos));
+    }
   }
 
   public void update() {
     long t = System.nanoTime(); // DEBUGGER ########################
 
-    // Update meeple
+    // Receive user input
+    long t_receiveInput = System.nanoTime(); // DEBUGGER #####################################
     if (meeple != null) {
       // User input
-      if (this.keyboard.isKeyDown('A')) {
-        this.meeple.move(false);
-        if (meeple.isGrounded(this.terr)) dirtPs.spawn(2, () -> new PVector(random(2, 5), random(-2, 0)), () -> new PVector());
+      if (keyboard.isKeyDown('A')) {
+        meeple.move(false);
+        if (!MINIMIZE_GRAPHICS && meeple.isGrounded(rightsideUpTerr, meeple.isUpsideDown())) {
+          dirtPs.spawn(2, () -> new PVector(random(2, 5), random(-2, 0)), () -> new PVector());
+        }
       }
-      if (this.keyboard.isKeyDown('D')) {
-        this.meeple.move(true);
-        if (meeple.isGrounded(this.terr)) dirtPs.spawn(2, () -> new PVector(random(-2, -5), random(-2, 0)), () -> new PVector());
+      if (keyboard.isKeyDown('D')) {
+        meeple.move(true);
+        if (!MINIMIZE_GRAPHICS && meeple.isGrounded(rightsideUpTerr, meeple.isUpsideDown())) {
+          dirtPs.spawn(2, () -> new PVector(random(-2, -5), random(-2, 0)), () -> new PVector());
+        }
       }
-      if (this.keyboard.isKeyDown(' ')) {
-        this.meeple.jump(this.terr, this.platforms);
+      if (keyboard.isKeyTapped(' ')) {
+        meeple.jump(rightsideUpTerr, platforms);
       }
-      if (this.keyboard.isKeyDown('j')) {
-        this.meeple.attack(this);
+      if (keyboard.isKeyDown('j')) {
+        meeple.attack(this);
       }
 
-      // DEBUGGING
-      if (this.keyboard.isKeyTapped('h')) {
-        this.meeple.heal(5);
+      if (keyboard.isKeyDown('r') && meeple.getCurrentlyHeldItem() instanceof ShootingThing) {
+        ShootingThing gun = (ShootingThing) meeple.getCurrentlyHeldItem();
+        gun.reload();
+      }
+
+      for (int i=0; i<MAX_ITEMS; i++) {
+        if (this.keyboard.isKeyDown((""+(i+1)).charAt(0))) {
+          setSelectedItem(i);
+        }
+      }
+
+      // Debug actions
+      if (keyboard.isKeyTapped('h')) {
+        meeple.heal(5);
+      }
+      if (keyboard.isKeyTapped('u')) {
+        meeple.flip();
       }
 
       // Move viewport
-      RectBody meepleBody = this.meeple.getBody();
-      PVector meeplePos = this.meeple.getPos();
+      RectBody meepleBody = meeple.getBody();
+      PVector meeplePos = meeple.getPos();
       float meepleW = meepleBody.getW();
       
       if (meeplePos.x+meepleW-offset.x >= width-viewportPadding) {
@@ -110,54 +205,106 @@ class World {
         offset.x -= viewportPadding-(meeplePos.x-offset.x);
       }
     }
+    logStats("UPDATE receive user input", (System.nanoTime()-t_receiveInput)/1e6); // DEBUGGER #######
 
-    // Update entities
-    for (int i=enemies.size()-1; i>=0; i--) {
-      if(this.enemies.get(i).isDead()) {
-        this.enemies.remove(i);
+    long t_updateItems = System.nanoTime(); // DEBUGGER #####################################
+
+    // Update items
+    for (Item i : items) {
+      i.update();
+    }
+    logStats("UPDATE items", (System.nanoTime()-t_updateItems)/1e6); // DEBUGGER #######
+
+    // Update layers ################################################
+    // Get live chunks
+
+    long t_allLayers = System.nanoTime(); // DEBUGGER #####################################
+
+    int startChunk = getChunkIn(offset)[0]-LIVE_CHUNK_RADIUS;
+    int endChunk = getChunkIn(offset)[1]+LIVE_CHUNK_RADIUS;
+
+    for (int i=layers.length-1; i>=0; i--) {
+      layers[i].update(this, startChunk*CHUNK_W, endChunk*CHUNK_W);
+    }
+
+    logStats("UPDATE all layers", (System.nanoTime()-t_allLayers)/1e6); // DEBUGGER #######
+    
+    if (meeple != null) {
+      // Check if player dropped into void
+      if (!meeple.isUpsideDown() && meeple.getTop().y >= height+200 || meeple.isUpsideDown() && meeple.getBottom().y <= -200) {
+        meeple.damage(10);
+      }
+
+      // Check for death
+      if (meeple.isDead()) {
+        setGameOver(true);
       }
     }
 
-    // Update layers
-    for (int i=layers.length-1; i>=0; i--) {
-      this.layers[i].applyForce(GRAVITY);
-      this.layers[i].update(this);
-    }
-
     // Check for death
-    if (this.meeple.isDead()) {
-      setGameOver(true);
+    for (int i=enemies.size()-1; i>=0; i--) {
+      if(enemies.get(i).isDead()) {
+        enemies.remove(i);
+      }
+    }
+    for (int i=bullets.size()-1; i>=0; i--) {
+      if(bullets.get(i).isDead()) {
+        bullets.remove(i);
+      }
     }
 
-    this.env.advanceTime();
+    long t_envUpdate = System.nanoTime(); // DEBUGGER ################################
+    env.update();
+    logStats("UPDATE env", (System.nanoTime()-t_allLayers)/1e6); // DEBUGGER #########
+    
+    long t_glow = System.nanoTime(); // DEBUGGER #####################################
+    if (meeple != null) env.glow(meeple.getBody(), 200, offset);
+    logStats("UPDATE glow-ify meeple", timeDiffFromNano(t_glow)); // DEBUGGER ####
 
-    logStats("Update", (System.nanoTime() - t)/1e6); // DEBUGGER #######
+    logGeneralStats("World update fn", timeDiffFromNano(t)); // DEBUGGER ################################
+    logGeneralStats("Chunks generated", (rightsideUpTerr.getMaxX()-rightsideUpTerr.getMinX())/(float) CHUNK_W);
   }
 
-  void display() {
+  public void display() {
     long t = System.nanoTime(); // DEBUGGER ########################
 
+    int startChunk = getChunkIn(offset)[0];
+    int endChunk = getChunkIn(offset)[1];
+
+    long t_envBg = System.nanoTime(); // DEBUGGER #####################################
     int totalItems = 0;
+    env.displayBackground(offset);
+    logStats("DISPLAY env background", timeDiffFromNano(t_envBg)); // DEBUGGER ###############
 
-    this.env.display(offset);
 
+    long t_layers = System.nanoTime();
     for (int i=layers.length-1; i>=0; i--) {
-      totalItems += this.layers[i].getNumItems();
-      this.layers[i].display(offset);
+      totalItems += layers[i].getNumItems();
+      layers[i].display(startChunk*CHUNK_W, endChunk*CHUNK_W);
     }
+    logStats("DISPLAY all layers", timeDiffFromNano(t_layers));
 
-    this.terr.display();
 
-    // Darken based on time
-    float dayPercentage = this.env.getDayPercentage();
-    float alpha = map(dayPercentage, 0, 1, 255/2, 0);
-    fill(0, alpha);
-    rect(offset.x, offset.y, width, height);
+    long t_terrs = System.nanoTime();
+    rightsideUpTerr.display(startChunk*CHUNK_W, endChunk*CHUNK_W);
+    upsideDownTerr.display(startChunk*CHUNK_W, endChunk*CHUNK_W);
+    logStats("DISPLAY terrain", timeDiffFromNano(t_terrs));
 
-    logStats("Display", (System.nanoTime() - t)/1e6); // DEBUGGER #######
 
-    // fill(0, 255, 0);
-    // text(totalItems, mouseX+offset.x, mouseY+offset.y);
+    long t_darknessFilter = System.nanoTime();
+    env.displayFilter(offset);
+    logStats("DISPLAY darkness filter", timeDiffFromNano(t_darknessFilter)); // DEBUGGER #######
+    
+
+    logGeneralStats("World display fn", timeDiffFromNano(t)); // DEBUGGER #######
+    logGeneralStats("# registered objects", totalItems);
+  }
+
+  private int[] getChunkIn(PVector offset) {
+    int startChunk = floor(offset.x/CHUNK_W);
+    int endChunk = ceil((offset.x+width)/CHUNK_W);
+
+    return new int[]{startChunk, endChunk};
   }
 
 
@@ -171,35 +318,59 @@ class World {
 
   public void createPlatform(PVector pos, int w, int h) {
     Platform p = new Platform(pos, w, h);
-    this.layers[2].register(p);
-    this.platforms.add(p);
+    layers[2].register(p);
+    platforms.add(p);
+  }
+  public void createTrampoline(PVector pos, int w, int h) {
+    Trampoline t = new Trampoline(pos, w, h);
+    layers[2].register(t);
+    platforms.add(t);
   }
   public void createEnemy(Enemy e) {
-    this.layers[2].register(e);
-    this.enemies.add(e);
+    layers[2].register(e);
+    enemies.add(e);
   }
   public void createBullet(Bullet b) {
-    this.layers[2].register(b);
-    this.bullets.add(b);
+    layers[2].register(b);
+    bullets.add(b);
   }
 
 
   // Generate more world as the meeple moves
   // "Construct world" just sounded cool, but generateWorld prob is better name no
   public void constructWorld() {
-    int constructW = width;
+    // if (offset.x <= rightsideUpTerr.minX + constructPadding) {
+    //   int maxX = rightsideUpTerr.minX;
+    //   int minX = rightsideUpTerr.minX-constructW;
+    //   this.rightsideUpTerr.constructLeft(constructW);
+    //   this.upsideDownTerr.constructLeft(constructW);
+    //   this.generateDeco(minX, maxX);
 
-    if (offset.x <= terr.minX + constructPadding) {
-      int maxX = terr.minX;
-      int minX = terr.minX-constructW;
-      this.terr.constructLeft(constructW);
+    //   this.spawnEnemies(minX, maxX);
+    // }
+
+    // Construct right
+    if (offset.x+width >= rightsideUpTerr.maxX - constructPadding) {
+      int maxX = rightsideUpTerr.maxX+CHUNK_W;
+      int minX = rightsideUpTerr.maxX;
+      this.rightsideUpTerr.constructRight(CHUNK_W);
+      this.upsideDownTerr.constructRight(CHUNK_W);
       this.generateDeco(minX, maxX);
-    }
-    if (offset.x+width >= terr.maxX - constructPadding) {
-      int maxX = terr.maxX+constructW;
-      int minX = terr.maxX;
-      this.terr.constructRight(constructW);
-      this.generateDeco(minX, maxX);
+
+      this.spawnEnemies(minX, maxX);
+
+      if (random(0, 1) < TRAMPOLINE_SPAWN_CHANCE) {
+        println("Spawned trampoline");
+
+        float x = random(minX, maxX);
+        if (random(0, 1) < 0.5) {
+          float terrY = rightsideUpTerr.getHeightAt(x);
+          createTrampoline(new PVector(x, terrY-TRAMPOLINE_H), TRAMPOLINE_W, TRAMPOLINE_H); // Rightside up
+        } else {
+          float terrY = upsideDownTerr.getHeightAt(x);
+          createTrampoline(new PVector(x, terrY), TRAMPOLINE_W, TRAMPOLINE_H); // Upside down
+        }
+      }
     }
   }
 
@@ -218,24 +389,24 @@ class World {
     // for (float x = minX; x < maxX; x += step) {
     //   float jitter = random(-step * 0.5, step * 0.5);
     //   float posX = constrain(x + jitter, minX, maxX);
-    //   world.addTree(new PVector(posX, terr.getHeightAt(posX)), 3);
+    //   world.addTree(new PVector(posX, rightsideUpTerr.getHeightAt(posX)), 3);
     // }
     // for (float x = minX; x < maxX; x += step) {
     //   float jitter = random(-step * 0.5, step * 0.5);
     //   float posX = constrain(x + jitter, minX, maxX);
-    //   world.addTree(new PVector(posX, terr.getHeightAt(posX)), 5);
+    //   world.addTree(new PVector(posX, rightsideUpTerr.getHeightAt(posX)), 5);
     // }
 
     float bushesEvery = 100;
     for (int i=0; i<w/bushesEvery; i++) {
       float x = minX+i*bushesEvery;
-      this.addBush(new PVector(x, terr.getHeightAt(x)), 100, 150, 2);
+      this.addBush(new PVector(x, rightsideUpTerr.getHeightAt(x)), 100, 150, 2);
     }
     
     // float bigBushesEvery = 1000;
     // for (int i=0; i<w/bigBushesEvery; i++) {
     //   float x = minX+i*bigBushesEvery;
-    //   world.addBush(new PVector(x, terr.getHeightAt(x)), 300, 350, 4);
+    //   world.addBush(new PVector(x, rightsideUpTerr.getHeightAt(x)), 300, 350, 4);
     // }
   }
 }

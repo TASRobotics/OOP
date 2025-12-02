@@ -1,13 +1,25 @@
-public class Meeple extends Entity<RectBody> {
+public class Meeple extends Entity<RectBody> implements HasHealth {
+  private float health;
+  private float maxHealth;
+
+  private int movementSpeed; // px
+
   private float jumpVel;
+  private boolean didDoubleJump;
   private int layer;
   private boolean isHatOn;
 
   private Item currentlyHeld;
    
   Meeple(int layer) {
-    super(new RectBody(new PVector(500, 50), 40, 80, 1, false), 200, 200);
+    super(new RectBody(new PVector(500, 50), 40, 80, 1));
+    this.maxHealth = 100;
+    this.health = this.maxHealth;
+    
     this.jumpVel = 600; // px
+    this.didDoubleJump = false;
+
+    this.movementSpeed = 200;
 
     this.layer = layer;
     this.isHatOn = true;
@@ -23,23 +35,43 @@ public class Meeple extends Entity<RectBody> {
   public float getH() {
     return this.getBody().getH();
   }
-  
-
-  public void setCurrentlyHeld(Item i) {
-    this.currentlyHeld = i;
+  public Item getCurrentlyHeldItem() {
+    return this.currentlyHeld;
+  }
+  public float getHealth() {
+      return this.health;
+  }
+  public void damage(float h) {
+      this.health -= min(this.health, h);
+      if (this.health == 0) this.isDead = true;
+  }
+  public void heal(float h) {
+      this.health += min(this.maxHealth-this.health, h);
+  }
+  public float getMaxHealth() {
+      return this.maxHealth;
   }
 
+  public void setCurrentlyHeldItem(Item item) {
+    this.currentlyHeld = item;
+  }
+  public void setHealth(float h) {
+    this.health = h;
+  }
 
   // ACTIONS
   public void move(boolean isRight) {
     if (isRight) this.getPos().x += movementSpeed*dt();
     else this.getPos().x -= movementSpeed*dt();
 
-    this.body.setIsFacingRight(isRight);
+    this.setIsFacingRight(isRight);
   }
-  public void jump(Terrain terr, ArrayList<Platform> platforms) {
-    if (isGrounded(terr, platforms)) {
-      this.getVel().add(new PVector(0, -this.jumpVel));
+  public void jump(Terrain rightsideUpTerr, ArrayList<Platform> platforms) {
+    if (isGrounded(rightsideUpTerr, platforms, isUpsideDown) || !this.didDoubleJump) {
+      float directionalJumpVel = -this.jumpVel * this.getDirection();
+      this.setVel(new PVector(0, directionalJumpVel));
+
+      if (!isGrounded(rightsideUpTerr, platforms, isUpsideDown)) this.didDoubleJump = true;
     }
   }
 
@@ -54,16 +86,18 @@ public class Meeple extends Entity<RectBody> {
   }
   
 
-  public boolean isGrounded(Terrain terr) {
-    return this.body.isGrounded(terr);
+  public boolean isGrounded(Terrain rightsideUpTerr, boolean isUpsideDown) {
+    return this.body.isGrounded(rightsideUpTerr, isUpsideDown);
   }
-  public boolean isGrounded(Terrain terr, ArrayList<Platform> platforms) {
-    return this.body.isGrounded(terr, platforms);
+  public boolean isGrounded(Terrain rightsideUpTerr, ArrayList<Platform> platforms, boolean isUpsideDown) {
+    return this.body.isGrounded(rightsideUpTerr, platforms, isUpsideDown);
   }
 
   @Override
   void update(World world) {
     super.update(world);
+    logGeneralStats("Meeple Y Vel", this.vel.y);
+    if (this.isGrounded(world.rightsideUpTerr, world.platforms, isUpsideDown)) this.didDoubleJump = false;
   }
 
   @Override
@@ -117,6 +151,6 @@ public class Meeple extends Entity<RectBody> {
 
     popMatrix();
 
-    currentlyHeld.handheldDisplay(this);
+    if (currentlyHeld != null) currentlyHeld.handheldDisplay(this);
   }
 }

@@ -12,17 +12,18 @@ public class Flag extends Item {
 
     @Override
     public void handheldDisplay(Entity user) {
-        throw new Error("Knife doesn't have handheld display yet");
+        // throw new Error("Flag doesn't have handheld display yet");
     }
 
     @Override
     public void iconDisplay(PVector pos) {
         fill(255);
-        rect(pos.x, pos.y, this.iconW, this.iconH);
+        noStroke();
+        rect(pos.x, pos.y, ICON_W, ICON_H);
 
         fill(0);
         textSize(16);
         textAlign(CENTER, CENTER);
-        text("knife", pos.x+25, pos.y+25);
+        text("flag", pos.x+25, pos.y+25);
     }
 }

@@ -1,21 +1,29 @@
 public class RectBody extends Body {
     float w, h;
 
-    RectBody(PVector pos, float w, float h, boolean isStatic) {
-        super(pos, 0, isStatic);
+    RectBody(PVector pos, float w, float h) {
+        super(pos, 0);
         this.w = w;
         this.h = h;
     }
-    RectBody(PVector pos, float w, float h, float mass, boolean isStatic) {
-        super(pos, mass, isStatic);
+    RectBody(PVector pos, float w, float h, float mass) {
+        super(pos, mass);
         this.w = w;
         this.h = h;
     }
 
+    @Override
+    public PVector getTop() {
+        return this.pos;
+    }
+    @Override
+    public PVector getBottom() {
+        return PVector.add(this.pos, new PVector(0, this.h));
+    }
+    @Override
     public PVector getCenter() {
         return PVector.add(pos, new PVector(w/2, h/2));
     }
-
     public float getX() {
         return this.pos.x;
     }
@@ -28,50 +36,103 @@ public class RectBody extends Body {
     public float getH() {
         return this.h;
     }
+    public PVector getDim() {
+        return new PVector(w, h);
+    }
 
     @Override
-    public void collide(Terrain terr, ArrayList<Platform> platforms) {
-        if (isGrounded(terr)) {
-            float terrY = terr.getHeightAt(this.pos.x+w/2);
+    public void setTop(PVector p) {
+        this.pos = p;
+    }
+    @Override
+    public void setBottom(PVector p) {
+        this.pos = p.sub(0, h);
+    }
+    @Override
+    public void setCenter(PVector p) {
+        this.pos = p.sub(w/2, h/2);
+    }
 
-            this.vel.y = 0;
-            this.pos.y = terrY-this.h;
+    @Override
+    public void resolveAllCollisions(Entity entity, Terrain terr, ArrayList<Platform> platforms, boolean isUpsideDown) {
+        boolean grounded = false;
+        boolean damageExempt = false;
+
+        if (isGrounded(terr, isUpsideDown)) {
+            grounded = true;
+
+            entity.getVel().y = 0;
+
+            float terrY = terr.getHeightAt(this);
+            if (!isUpsideDown) setBottom(new PVector(pos.x, terrY));
+            else setTop(new PVector(pos.x, terrY));
         }
 
         for (Platform p : platforms) {
-            boolean falling = this.vel.y > 0;
-            boolean wasAbove = this.prevPos.y+this.h <= p.getPos().y;
+            boolean falling = abs(entity.getVel().y) > 0;
+            boolean wasAbove = false;
+            if (!entity.isUpsideDown()) wasAbove = entity.getPrevPos().y+this.h <= p.getPos().y;
+            else wasAbove = entity.getPrevPos().y >= p.getPos().y+p.getH();
 
             if (falling && wasAbove) {
                 CollisionResult res = Collision.check(p.getBody(), this);
-                if (res.collided && res.side == "bottom") {
-                    this.vel.y = 0;
-                    this.pos.y -= res.penetration;
+
+                boolean correctCollisionPlace;
+                if (!entity.isUpsideDown()) correctCollisionPlace = res.side == "bottom";
+                else correctCollisionPlace = res.side == "top";
+
+                if (res.collided && correctCollisionPlace) {
+                    grounded = true;
+
+                    entity.getVel().y = 0;
+                    this.pos.y -= res.penetration * entity.getDirection();
+
+                    if (p instanceof Trampoline) {
+                        damageExempt = true;
+
+                        // Boost jump!
+                        entity.getVel().y = 500 * entity.getDirection();
+                    }
                 }
             }
+        }
+
+        if (grounded) {
+             // Fall damage
+            if (!damageExempt && entity.isFlipping() && entity instanceof HasHealth) {
+                HasHealth damageable = (HasHealth) entity;
+                damageable.damage(25);
+            }
+
+            entity.setIsFlipping(false);
         }
     }
 
     @Override
-    public boolean isGrounded(Terrain terr) {
-        float terrH = terr.getHeightAt(this.pos.x+w/2);
-        return this.pos.y+this.h >= terrH;
+    public boolean isGrounded(Terrain terr, boolean isUpsideDown) {
+        float terrH = terr.getHeightAt(this);
+
+        return !isUpsideDown ? getBottom().y >= terrH : getTop().y <= terrH;
     }
 
     @Override
-    public boolean isGrounded(Terrain terr, ArrayList<Platform> platforms) {
-        float terrH = terr.getHeightAt(this.pos.x+w/2);
-        boolean isOnFloor = this.pos.y+this.h >= terrH;
+    public boolean isGrounded(Terrain terr, ArrayList<Platform> platforms, boolean isUpsideDown) {
+        boolean isOnFloor = isGrounded(terr, isUpsideDown);
         boolean isOnPlatform = false;
 
         for (Platform p : platforms) {
             PVector pPos = p.getPos();
-            if (this.getX()+this.w >= pPos.x && this.getX() <= pPos.x+p.getW() && this.getY()+this.h == pPos.y) {
+            if (this.pos.x+w >= pPos.x && this.pos.x <= pPos.x+p.getW() && this.pos.y+this.h == pPos.y) {
                 isOnPlatform = true;
                 break;
             }
         }
 
         return isOnFloor || isOnPlatform;
+    }
+
+    @Override
+    public boolean isWithin(float minX, float maxX) {
+        return pos.x+w >= minX && pos.x <= maxX;
     }
 }

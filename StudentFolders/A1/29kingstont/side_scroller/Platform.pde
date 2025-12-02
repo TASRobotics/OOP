@@ -1,10 +1,9 @@
-class Platform extends Displayable {
+class Platform implements Displayable {
     RectBody platform;
 
     // THERE EXIST TWO POSITIONS...
-    Platform(PVector pos, float w, float h) {
-        super(pos);
-        platform = new RectBody(pos, w, h, true);
+    Platform(PVector pos, int w, int h) {
+        platform = new RectBody(pos, w, h);
     }
 
     public PVector getPos() {
@@ -22,10 +21,11 @@ class Platform extends Displayable {
     }
 
     public void display() {
-        fill(255);
-        stroke(0);
-        strokeWeight(1);
+        fill(PLATFORM_BLUE);
+        noStroke();
 
-        rect(pos.x, pos.y, this.getW(), this.getH());
+        drawWavyBox2(platform, 5, PLATFORM_BLUE, PLATFORM_BLUE);
+
+        // rect(this.getPos().x, this.getPos().y, this.getW(), this.getH());
     }
 }

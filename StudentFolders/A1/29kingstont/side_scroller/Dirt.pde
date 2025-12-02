@@ -7,7 +7,7 @@ public class Dirt extends Particle {
         stroke(0, this.lifespan);
 
         float alpha = map(this.lifespan, 0, this.maxLifespan, 0, 255);
-        fill(141, 96, 58, alpha);
+        fill(PLATFORM_BLUE, alpha);
         circle(pos.x, pos.y, 8);
     }
 }

@@ -1,6 +1,6 @@
 public class Minion extends Enemy<RectBody> {
     Minion(PVector pos) {
-        super(new RectBody(pos, 40, 40, 1, false), 3, 5, 500, 5);
+        super(new RectBody(pos, 40, 40, 1), 3, 1, 500, 5);
     }
 
     @Override
@@ -38,6 +38,6 @@ public class Minion extends Enemy<RectBody> {
         RectBody body = this.getBody();
         rect(pos.x, pos.y, body.getW(), body.getH());
 
-        this.displayHp();
+        displayHp(this);
     }
 }

@@ -1,4 +1,6 @@
-public class LongHealthBar extends Displayable {
+public class LongHealthBar implements Displayable {
+    private PVector pos;
+
     private float barW = 300;
     private float barH = 10;
 
@@ -14,7 +16,8 @@ public class LongHealthBar extends Displayable {
     private float animDuration = 200;
 
     LongHealthBar(PVector pos, float maxHealth) {
-        super(pos);
+        this.pos = pos;
+
         this.maxHealth = maxHealth;
         this.actualHealth = this.maxHealth;
         this.displayHealth = this.actualHealth;
@@ -40,7 +43,6 @@ public class LongHealthBar extends Displayable {
         float t =  timePassed/this.animDuration;
         t = constrain(t, 0, 1);
 
-        println(t);
         this.displayHealth = lerp(this.startHealth, this.targetHealth, t);
     }
 
@@ -57,25 +59,31 @@ public class LongHealthBar extends Displayable {
 
         textSize(16);
         fill(c);
-        text("You", barX, barY-8);
+        textAlign(LEFT, TOP);
+        text("You", barX, barY-20);
         
         noStroke();
         fill(255, 50);
         rect(barX, barY, barW, barH); 
 
+        fill(255);
+        textAlign(RIGHT, TOP);
+        textSize(16);
+        text(""+round(actualHealth), barX+barW, barY-20);
+
         fill(c);
-        float actualHealthW = map(this.actualHealth, 0, this.maxHealth, 0, barW);
+        float actualHealthW = map(actualHealth, 0, maxHealth, 0, barW);
         rect(barX, barY, actualHealthW, barH);
 
-        if (this.targetHealth - this.startHealth > 0) { // healing
+        if (targetHealth - startHealth > 0) { // healing
             fill(255);
-            float changeIndicatorMaxW = map(abs(this.targetHealth-this.startHealth), 0, this.maxHealth, 0, barW);
-            float changeIndicatorW = map(this.displayHealth, this.startHealth, this.targetHealth, changeIndicatorMaxW, 0);
+            float changeIndicatorMaxW = map(abs(targetHealth-startHealth), 0, maxHealth, 0, barW);
+            float changeIndicatorW = map(displayHealth, startHealth, targetHealth, changeIndicatorMaxW, 0);
             rect(barX+actualHealthW-changeIndicatorW, barY, changeIndicatorW, barH);
         } else {
             fill(RED);
-            float changeIndicatorMaxW = map(abs(this.targetHealth-this.startHealth), 0, this.maxHealth, 0, barW);
-            float changeIndicatorW = map(this.displayHealth, this.startHealth, this.targetHealth, changeIndicatorMaxW, 0);
+            float changeIndicatorMaxW = map(abs(targetHealth-startHealth), 0, maxHealth, 0, barW);
+            float changeIndicatorW = map(displayHealth, startHealth, targetHealth, changeIndicatorMaxW, 0);
             rect(barX+actualHealthW, barY, changeIndicatorW, barH);
         }
     }

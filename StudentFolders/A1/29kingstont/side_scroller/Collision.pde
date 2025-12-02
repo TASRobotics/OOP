@@ -40,8 +40,8 @@ public static class Collision {
 
     // ChatGPTed
     public static CollisionResult check(CircleBody circle, RectBody rect) {
-        float cx = circle.getX();
-        float cy = circle.getY();
+        float cx = circle.getPos().x;
+        float cy = circle.getPos().x;
         float r  = circle.getR();
 
         float rx = rect.getX();

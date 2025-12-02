@@ -1,49 +1,63 @@
 public class CircleBody extends Body {
     float r;
 
-    CircleBody(PVector pos, float r, boolean isStatic) {
-        super(pos, 0, isStatic);
+    CircleBody(PVector pos, float r) {
+        super(pos, 0);
         this.r = r;
     }
-    CircleBody(PVector pos, float r, float mass, boolean isStatic) {
-        super(pos, mass, isStatic);
+    CircleBody(PVector pos, float r, float mass) {
+        super(pos, mass);
         this.r = r;
-    }
-
-    public float getR() {
-        return r;
-    }
-
-    public PVector getCenter() {
-        return this.pos;
     }
 
     @Override
-    public void collide(Terrain terr, ArrayList<Platform> platforms) {
-        if (isGrounded(terr, platforms)) {
-            float bestY = terr.getHeightAt(this.pos.x)-this.r;
+    public PVector getTop() {
+        return PVector.add(this.pos, new PVector(0, r));
+    }
+    @Override
+    public PVector getBottom() {
+        return PVector.sub(this.pos, new PVector(0, r));
+    }
+    @Override
+    public PVector getCenter() {
+        return this.pos;
+    }
+    public float getR() {
+        return this.r;
+    }
 
-            // for (Platform p : platforms) {
-            //     if (Collision.check(p, this)) {
-            //         bestY = p.getPos().y-this.r;
-            //         break;
-            //     }
-            // }
+    @Override
+    public void setTop(PVector p) {
+        this.pos = p.add(0, r);
+    }
+    @Override
+    public void setBottom(PVector p) {
+        this.pos = p.sub(0, r);
+    }
+    @Override
+    public void setCenter(PVector p) {
+        this.pos = p;
+    }
 
-            this.vel.y = 0;
+    @Override
+    public void resolveAllCollisions(Entity entity, Terrain rightsideUpTerr, ArrayList<Platform> platforms, boolean isUpsideDown) {
+        if (isGrounded(rightsideUpTerr, platforms, isUpsideDown)) {
+            float bestY = rightsideUpTerr.getHeightAt(this.pos.x)-this.r;
+
+            entity.vel.y = 0;
             this.pos.y = bestY;
         }
     }
 
     @Override
-    public boolean isGrounded(Terrain terr) {
-        float terrH = terr.getHeightAt(this.pos.x);
+    public boolean isGrounded(Terrain rightsideUpTerr, boolean isUpsideDown) {
+        float terrH = rightsideUpTerr.getHeightAt(this.pos.x);
         return this.pos.y+this.r >= terrH;
     }
 
     @Override
-    public boolean isGrounded(Terrain terr, ArrayList<Platform> platforms) {
-        float terrH = terr.getHeightAt(this.pos.x);
+    public boolean isGrounded(Terrain rightsideUpTerr, ArrayList<Platform> platforms, boolean isUpsideDown) {
+        float terrH = rightsideUpTerr.getHeightAt(this.pos.x);
         boolean isOnFloor = this.pos.y+this.r >= terrH;
         boolean isOnPlatform = false;
         // for (Platform p : platforms) {
@@ -53,5 +67,10 @@ public class CircleBody extends Body {
         //     }
         // }
         return isOnFloor || isOnPlatform;
+    }
+
+    @Override
+    public boolean isWithin(float minX, float maxX) {
+        return pos.x+r >= minX && pos.x-r <= maxX;
     }
 }

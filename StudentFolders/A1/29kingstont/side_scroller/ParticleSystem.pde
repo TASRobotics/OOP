@@ -37,6 +37,9 @@ public class ParticleSystem<T extends Particle> {
         this.offset = offset;
         this.pos = parent.getPos().copy().add(offset);
     }
+    void setOffset(PVector offset) {
+        this.offset = offset;
+    }
 
     void spawn(int N) {
         for (int i=0; i<N; i++) {

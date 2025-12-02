@@ -3,20 +3,32 @@ static int entityCount = 0;
 public abstract class Entity<T extends Body> {
     public int id;
     protected T body;
-    protected float health;
-    protected float maxHealth;
-    protected boolean isDead;
-    protected int movementSpeed; // px
+    protected PVector prevPos;
+    protected PVector vel, acc;
+    protected boolean isFacingRight = true;
 
-    Entity(T body, int maxHeath, int movementSpeed) {
+    protected boolean isDead = false;
+    protected boolean isUpsideDown;
+    protected boolean isFlipping;
+
+    Entity(T body) {
         this.id = entityCount;
         this.body = body;
 
-        this.maxHealth = maxHeath;
-        this.health = this.maxHealth;
-        this.isDead = false;
+        this.prevPos = body.getPos().copy();
+        this.vel = new PVector();
+        this.acc = new PVector();
 
-        this.movementSpeed = movementSpeed;
+        this.isUpsideDown = false;
+
+        entityCount++;
+    }
+
+    Entity(T body, boolean isUpsideDown) {
+        this.id = entityCount;
+        this.body = body;
+
+        this.isUpsideDown = isUpsideDown;
 
         entityCount++;
     }
@@ -24,92 +36,101 @@ public abstract class Entity<T extends Body> {
     public T getBody() {
         return this.body;
     }
-
-    public int getMovementSpeed() {
-        return this.movementSpeed;
+    public PVector getPrevPos() {
+        return this.prevPos;
     }
-
-    public boolean isDead() {
-        return this.isDead;
-    }
-    public void damage(float h) {
-        this.health -= min(this.health, h);
-        if (this.health == 0) this.isDead = true;
-    }
-    public void heal(float h) {
-        this.health += min(this.maxHealth-this.health, h);
-    }
-
-    public PVector getCenter() {
-        return this.body.getPos();
-    };
     public PVector getPos() {
         return this.body.getPos();
     }
+    public PVector getCenter() {
+        return this.body.getCenter();
+    }
+    public PVector getTop() {
+        return this.body.getTop();
+    }
+    public PVector getBottom() {
+        return this.body.getBottom();
+    }
     public PVector getVel() {
-        return this.body.getVel();
+        return this.vel;
     }
     public PVector getAcc() {
-        return this.body.getAcc();
+        return this.acc;
     }
     public float getMass() {
         return this.body.getMass();
     }
-    public float getHealth() {
-        return this.health;
+    public boolean getIsFacingRight() {
+        return this.isFacingRight;
     }
-    public float getMaxHealth() {
-        return this.maxHealth;
+    public int getDirection() {
+        return this.isUpsideDown ? -1 : 1;
     }
+    public boolean isUpsideDown() {
+        return this.isUpsideDown;
+    }
+    public boolean isFlipping() {
+        return this.isFlipping;
+    }
+    public boolean isDead() {
+        return this.isDead;
+    }
+
 
     public void setPos(PVector pos) {
         this.body.setPos(pos);
     }
     public void setVel(PVector vel) {
-        this.body.setVel(vel);
-    }
-    public void stop() {
-        this.body.setVel(new PVector(0, 0));
-        this.body.setAcc(new PVector(0, 0));
+        this.vel = vel;
     }
     public void setAcc(PVector acc) {
-        this.body.setAcc(acc);
+        this.acc = acc;
+    }
+    public void stop() {
+        this.vel.mult(0);
+        this.acc.mult(0);
+    }
+    public void setIsUpsideDown(boolean b) {
+        if (this.isUpsideDown != b) this.flip();
+    }
+    public void setIsFlipping(boolean b) {
+        this.isFlipping = b;
+    }
+    public void setIsFacingRight(boolean b) {
+        this.isFacingRight = b;
+    }
+    public void flip() {
+        if (this.isFlipping && !ALLOW_FLYING) return;
+        
+        this.isUpsideDown = !this.isUpsideDown;
+        this.isFlipping = true;
+    }
+    public void die() {
+        this.isDead = true;
     }
 
     public void applyForce(PVector F) {
-        this.body.applyForce(F);
+        if (body.mass == 0) return;
+        acc.add(PVector.div(F, body.mass));
     }
-
 
     public void update(World world) {
-        this.body.update(world);
+        PVector grav = PVector.mult(GRAVITY, getDirection());
+
+        applyForce(grav);
+        prevPos = body.getPos().copy();
+
+        vel.add(PVector.mult(this.acc, dt()));
+        body.getPos().add(PVector.mult(this.vel, dt()));
+        acc.mult(0);
+
+        // Check for collisions
+        Terrain terr = isUpsideDown ? world.upsideDownTerr : world.rightsideUpTerr;
+        body.resolveAllCollisions(this, terr, world.platforms, isUpsideDown);
+
+        if (prevPos.x != body.getPos().x) {
+            isFacingRight = prevPos.x < body.getPos().x;
+        }
     }
     public abstract void display();
-
-    public void displayHp() {
-        if (this.getHealth() == this.getMaxHealth()) return;
-
-        float barX = 0;
-        float barY = 0;
-        float barW = 80;
-        float barH = 10;
-
-        if (body instanceof RectBody) {
-            RectBody body = (RectBody) this.body;
-            barX = this.getPos().x+body.getW()/2-barW/2;
-            barY = this.getPos().y - 50;
-        } else if (body instanceof CircleBody) {
-            barX = this.getPos().x;
-            barY = this.getPos().y - 50;
-            
-        }
-
-        stroke(0);
-        strokeWeight(1);
-        fill(80);
-        rect(barX, barY, barW, barH); 
-
-        fill(255, 0, 0);
-        rect(barX, barY, map(health, 0, maxHealth, 0, barW), barH);
-    }
 }

@@ -47,42 +47,38 @@ public class Layer {
         }
     }
 
-    void update(World world) {
+    void update(World world, float minX, float maxX) {
         cleanup();
+
         for (int i = entities.size()-1; i>=0; i--) {
             Entity e = entities.get(i);
-            e.update(world);
+            if (e.getBody().isWithin(minX, maxX)) e.update(world);
+            // else println("SKIPPED update for entity " + e.toString());
         }
         for (ParticleSystem d : particleSystems) {
             d.update();
         }
     }
 
-    void display(PVector offset) {
+    void display(float minX, float maxX) {
         for (Static d : items) {
-            if (d.getPos().x >= offset.x && d.getPos().x <= offset.x + width) {
-                long t = System.nanoTime(); // DEBUGGER ########################
+            if (d.getPos().x >= minX && d.getPos().x <= maxX) {
                 d.display();
-                logStats("Static display", (System.nanoTime() - t)/1e6);
             }
         }
 
         for (ParticleSystem ps : particleSystems) {
-            // if (d.pos.x >= offset.x && d.pos.x <= offset.x + width) {
-                ps.display();
-            // }
+            ps.display();
         }
 
         for (Platform p : platforms) {
-            if (p.getPos().x + p.getW() >= offset.x && p.getPos().x <= offset.x + width) {
-                p.display();
-            }
+            if (p.getBody().isWithin(minX, maxX)) p.display();
+            // else println("SKIPPED display for platform " + p.toString());
         }
 
         for (Entity e : entities) {
-            if (e.getPos().x >= offset.x && e.getPos().x <= offset.x + width) {
-                e.display();
-            }
+            if (e.getBody().isWithin(minX, maxX)) e.display();
+            // else println("SKIPPED display for entity " + e.toString());
         }
     }
 }

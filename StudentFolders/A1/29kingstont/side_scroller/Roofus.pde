@@ -1,32 +1,8 @@
-public class Roofus extends Enemy<RectBody> {
+public class Roofus extends BoringZombie {
     private int numAttacks = 0;
     private final int spawnEvery = 1;
-
-    private Weapon weapon;
-
     Roofus(PVector pos) {
-        super(new RectBody(pos, 40, 80, 1, false), 1, 5, 1000, 50);
-
-        this.weapon = new Knife(0, this.damage, 30, 30); // cooldown 0 because managed by Enemy class
-    }
-
-    @Override
-    protected void move(Meeple meeple) {
-        float diff = meeple.getPos().x - this.getPos().x;
-        if (abs(diff) < 20) return;
-
-        if (diff > 0) {
-            this.getPos().x += movementSpeed;
-            this.body.setIsFacingRight(true);
-        } else if (diff < 0) {
-            this.getPos().x -= movementSpeed;
-            this.body.setIsFacingRight(false);
-        }
-    }
-
-    @Override
-    protected boolean attackConditionSatisfied(Meeple meeple) {
-        return !this.weapon.getTargetsInRange(this, meeple).isEmpty();
+        super(pos, 1, 2, 1000, 50);
     }
 
     @Override
@@ -56,6 +32,6 @@ public class Roofus extends Enemy<RectBody> {
         
         this.weapon.handheldDisplay(this);
 
-        this.displayHp();
+        displayHp(this);
     }
 }

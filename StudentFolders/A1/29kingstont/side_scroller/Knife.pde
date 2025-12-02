@@ -3,7 +3,7 @@ public class Knife extends Weapon {
     private int hitboxH;
 
     Knife() {
-        super(500, 20);
+        super(400, 40);
         this.hitboxW = 50;
         this.hitboxH = 30;
     }
@@ -14,19 +14,25 @@ public class Knife extends Weapon {
     }
 
     @Override
-    protected void attack(Entity user, ArrayList<Entity> targets) {
+    protected boolean conditionSatisfied() { return true; }
+
+    @Override
+    protected void attack(Entity user, ArrayList<Entity> targets, World world) {
         if (!(user.getBody() instanceof RectBody)) throw new Error("I'm too lazy to make this work for circle bodies so this will only work for rectangles!!!");
 
         Entity<RectBody> rectUser = (Entity<RectBody>) user;
 
         PVector hitboxPos = rectUser.getPos().copy();
         hitboxPos.add(this.getOffset(user));
-        RectBody hitbox = new RectBody(hitboxPos, hitboxW, hitboxH, 0, true);
+        RectBody hitbox = new RectBody(hitboxPos, hitboxW, hitboxH, 0);
 
         ArrayList<Entity> targetsInRange = getTargetsInRange(user, targets);
 
         for (Entity e : targetsInRange) {
-            e.damage(this.damage);
+            if (e instanceof HasHealth) {
+                HasHealth hpEntity = (HasHealth) e;
+                hpEntity.damage(this.damage);
+            }
         }
     }
 
@@ -38,11 +44,13 @@ public class Knife extends Weapon {
 
         PVector hitboxPos = rectUser.getPos().copy();
         hitboxPos.add(this.getOffset(user));
-        RectBody hitbox = new RectBody(hitboxPos, hitboxW, hitboxH, 0, true);
+        RectBody hitbox = new RectBody(hitboxPos, hitboxW, hitboxH, 0);
 
         ArrayList<Entity> targetsInRange = new ArrayList<>();
 
         for (Entity e : targets) {
+            if (e.isDead()) continue;
+            
             if (e.getBody() instanceof RectBody) {
                 if (Collision.check((RectBody) e.getBody(), hitbox).collided) {
                     targetsInRange.add(e);
@@ -65,7 +73,7 @@ public class Knife extends Weapon {
         RectBody rectUserBody = rectUser.getBody();
 
         PVector offset = new PVector();
-        if (rectUserBody.getIsFacingRight()) {
+        if (user.getIsFacingRight()) {
             offset.x = rectUserBody.getW();
             offset.y = rectUserBody.getH()/2-hitboxH/2;
         } else {
@@ -78,19 +86,20 @@ public class Knife extends Weapon {
 
     @Override
     public void handheldDisplay(Entity user) {
-        if (!this.isInUse) fill(50);
+        if (!this.isInUse) fill(255, 80);
         else fill(255, 0, 0);
 
         PVector offset = this.getOffset(user);
         rect(user.getPos().x+offset.x, user.getPos().y+offset.y, hitboxW, hitboxH);
-
+        
         this.isInUse = false;
     }
 
     @Override
     public void iconDisplay(PVector pos) {
         fill(255);
-        rect(pos.x, pos.y, this.iconW, this.iconH);
+        noStroke();
+        rect(pos.x, pos.y, ICON_W, ICON_H);
 
         fill(0);
         textSize(16);
