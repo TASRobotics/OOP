@@ -139,10 +139,10 @@ void pieceSetup() {
   zones[1] = new DropZone(340, 300, 100, 100);
   zones[2] = new DropZone(460, 300, 100, 100);
   zones[3] = new DropZone(580, 300, 100, 100);
-  pieces[0] = new Piece(50, 50, 100, 100, color(255, 0, 0), str(password1));
-  pieces[1] = new Piece(250, 50, 100, 100, color(0, 255, 0), str(password4));
-  pieces[2] = new Piece(50, 250, 100, 100, color(0, 0, 255), str(password3));
-  pieces[3] = new Piece(250, 250, 100, 100, color(255, 255, 0), str(password2));
+  pieces[0] = new Piece(50, 50, 100, 100, color(255, 0, 0), str(password1), 0);
+  pieces[1] = new Piece(250, 50, 100, 100, color(0, 255, 0), str(password4), 3);
+  pieces[2] = new Piece(50, 250, 100, 100, color(0, 0, 255), str(password3), 2);
+  pieces[3] = new Piece(250, 250, 100, 100, color(255, 255, 0), str(password2), 1);
 }
 
 void reddoor() {
@@ -203,6 +203,9 @@ void reddoor() {
     }
   }
   if (jigsaw) {
+    //if (jigsaw && pieces == null) {
+    //  pieceSetup();
+    //}
     for (DropZone z : zones) {
       z.show();
     }

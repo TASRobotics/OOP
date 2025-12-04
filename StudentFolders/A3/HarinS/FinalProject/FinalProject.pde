@@ -195,7 +195,7 @@ void mousePressed() {
     memoryGameClickCheck();
   }
   if (screen == -3) {
-
+    reddoor();
     pause(screen != prevScreen);
   }
 }

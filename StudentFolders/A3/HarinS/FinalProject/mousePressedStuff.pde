@@ -23,7 +23,6 @@ void doorPressed() {
       messages.add(new Message("This door is locked", 400, 500, 1000));
     } else if (playerHasKeyR) {
       screen = -3;
-      reddoor();
     }
   }
   if (pointRect(mouseX, mouseY, 350, 200, 100, 150)) {
@@ -77,7 +76,7 @@ void pause(boolean firsttime) {
       greenon = true;
     }
     
-    if (redon && yellowon && greenon && blueon) {
+    if (redon && yellowon && greenon && blueon && jigsaw == false) {
       if (pointRect(mouseX, mouseY, 300, 275, 200, 50)) {
         pieceSetup();
         jigsaw = true;
