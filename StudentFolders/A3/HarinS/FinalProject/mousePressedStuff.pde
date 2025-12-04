@@ -64,20 +64,22 @@ void pause(boolean firsttime) {
     stop = true;
     //------
     
-    if (redx <= 400 && redx >= 0 && redy <= 300 && redy >= 0) {
+    if (redx <= 400 && redx >= 0 && redy <= 300 && redy >= 0 && !redon) {
       redon = true;
     }
-    if (redx <= 800 && redx >= 400 && redy <= 300 && redy >= 0) {
+    if (redx <= 800 && redx >= 400 && redy <= 300 && redy >= 0 && !yellowon) {
       yellowon = true;
     }
-    if (redx <= 400 && redx >= 0 && redy <= 600 && redy >= 300) {
+    if (redx <= 400 && redx >= 0 && redy <= 600 && redy >= 300 && !blueon) {
       blueon = true;
     }
-    if (redx <= 800 && redx >= 400 && redy <= 600 && redy >= 300) {
+    if (redx <= 800 && redx >= 400 && redy <= 600 && redy >= 300 && !greenon) {
       greenon = true;
     }
+    
     if (redon && yellowon && greenon && blueon) {
       if (pointRect(mouseX, mouseY, 300, 275, 200, 50)) {
+        pieceSetup();
         jigsaw = true;
       }
     }

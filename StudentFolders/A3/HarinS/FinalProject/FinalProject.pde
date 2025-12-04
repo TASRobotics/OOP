@@ -24,9 +24,8 @@ int keygy = 300;
 color[][] colors = new color[4][4];
 boolean clicked[][] = new boolean[4][4];
 
-Piece[] pieces = new Piece[4];
-Piece selected = null;
-boolean jigsaw = false;
+//Piece[] pieces = new Piece[4];
+//Piece selected = null;
 
 //PVector rectx
 
@@ -37,10 +36,12 @@ ArrayList<Message> messages = new ArrayList<Message>();
 
 void setup() {
   size(800, 600);
-  pieceSetup();
 }
 
 void draw() {
+  if (mistake <= 0) {
+    goscreen();
+  }
   background(50);
   //for loop to show all messages
   for (Message m : messages) {
@@ -178,7 +179,7 @@ boolean keyDown(int kcode) {
 
 void mousePressed() {
   int prevScreen = screen;
-  
+
   doYouHaveKey();
   if (pointRect(mouseX, mouseY, 30, 285, 50, 25) && screen != 0) {
     screen -= 1;
@@ -188,13 +189,13 @@ void mousePressed() {
   }
 
   if (screen == 0) {
-     doorPressed();
+    doorPressed();
   }
   if (screen == -2) {
     memoryGameClickCheck();
   }
   if (screen == -3) {
-    
+
     pause(screen != prevScreen);
   }
 }

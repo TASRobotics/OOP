@@ -128,17 +128,26 @@ boolean greenon = false;
 boolean redon = false;
 boolean yellowon = false;
 boolean stop = false;
+boolean jigsaw = false;
+Piece[] pieces = new Piece[4];
+DropZone[] zones = new DropZone[4];
+Piece selected;
 
 
 void pieceSetup() {
-  pieces[0] = new Piece(50, 50, 100, 100, color(255, 0, 0));
-  pieces[1] = new Piece(250, 50, 100, 100, color(0, 255, 0));
-  pieces[2] = new Piece(50, 250, 100, 100, color(0, 0, 255));
-  pieces[3] = new Piece(250, 250, 100, 100, color(255, 255, 0));
+  zones[0] = new DropZone(220, 300, 100, 100);
+  zones[1] = new DropZone(340, 300, 100, 100);
+  zones[2] = new DropZone(460, 300, 100, 100);
+  zones[3] = new DropZone(580, 300, 100, 100);
+  pieces[0] = new Piece(50, 50, 100, 100, color(255, 0, 0), str(password1));
+  pieces[1] = new Piece(250, 50, 100, 100, color(0, 255, 0), str(password4));
+  pieces[2] = new Piece(50, 250, 100, 100, color(0, 0, 255), str(password3));
+  pieces[3] = new Piece(250, 250, 100, 100, color(255, 255, 0), str(password2));
 }
 
 void reddoor() {
   if (jigsaw == false) {
+    fill(255, 0, 0);
     fill(255);
     circle(redx, redy, 50);
     if (stop == false) {
@@ -189,12 +198,16 @@ void reddoor() {
       rect(300, 275, 200, 50);
       fill(0);
       textSize(50);
+      textAlign(LEFT);
       text("Next", 350, 320);
     }
   }
   if (jigsaw) {
+    for (DropZone z : zones) {
+      z.show();
+    }
     for (Piece p : pieces) {
-      p.show();
+      if (p != null) p.show();
     }
   }
 }

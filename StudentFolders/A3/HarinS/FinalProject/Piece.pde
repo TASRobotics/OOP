@@ -3,23 +3,25 @@ class Piece {
   color c;
   boolean dragging = false;
   float offsetX, offsetY;
+  String label;
 
-  Piece(float x, float y, float w, float h, color c) {
+  Piece(float x, float y, float w, float h, color c, String label) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.c = c;
+    this.label = label;
   }
 
   void show() {
     fill(c);
     rect(x, y, w, h);
-  }
 
-  boolean over(float mx, float my) {
-    return mx >= x && mx <= x + w &&
-           my >= y && my <= y + h;
+    fill(0);             
+    textSize(32);
+    textAlign(CENTER, CENTER);
+    text(label, x + w/2, y + h/2);
   }
 
   void startDrag(float mx, float my) {
@@ -48,6 +50,13 @@ void mouseDragged() {
 
 void mouseReleased() {
   if (jigsaw && selected != null) {
+    selected.stopDrag();
+    selected = null;
+    for (DropZone z : zones) {
+      if (rectRect(mouseX, mouseY, 100, 100, ) {
+        ;
+      }
+    }
     selected.stopDrag();
     selected = null;
   }
