@@ -9,6 +9,7 @@ boolean playerHasKeyR = true; // Track if player has collected the red key
 boolean playerHasKeyB = true; // Track if player has collected the blue key
 boolean playerHasKeyG = false; // Track if player has collected the green key
 boolean playerHasKeyY = false; // Track if player has collected the yellow key
+boolean playerHasPWG = false;
 
 int keyrx = 40;
 int keyry = 40;
@@ -39,6 +40,7 @@ void setup() {
 }
 
 void draw() {
+  println(screen);
   if (mistake <= 0) {
     goscreen();
   }
@@ -136,6 +138,18 @@ void drawKeyG() {
   rect(keygx + 55, keygy, 10, 20);
 }
 
+void greenPW(){
+  fill(100);
+  noStroke();
+  rect(200, 150, 400, 100);
+  textSize(50);
+  fill(0, 255, 0);
+  text(str(password1), 250, 200);
+  text(str(password2), 350, 200);
+  text(str(password3), 450, 200);
+  text(str(password4), 550, 200);
+}
+
 //void customPress() {
 //  // Handle continuous key presses for smooth movement
 //  for (Integer k : keysDown) {
@@ -197,5 +211,8 @@ void mousePressed() {
   if (screen == -3) {
     reddoor();
     pause(screen != prevScreen);
+  }
+  if (screen == -4) {
+    greendoor();
   }
 }

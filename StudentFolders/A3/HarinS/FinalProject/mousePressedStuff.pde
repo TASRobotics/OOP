@@ -18,18 +18,20 @@ void memoryGameClickCheck() {
 
 
 void doorPressed() {
-  if (pointRect(mouseX, mouseY, 200, 200, 100, 150)) {
-    if (!playerHasKeyR) {
-      messages.add(new Message("This door is locked", 400, 500, 1000));
-    } else if (playerHasKeyR) {
-      screen = -3;
+  if (done1 == false) {
+    if (pointRect(mouseX, mouseY, 200, 200, 100, 150)) {
+      if (!playerHasKeyR) {
+        messages.add(new Message("This door is locked", 400, 500, 1000));
+      } else if (playerHasKeyR) {
+        screen = -3;
+      }
     }
   }
   if (pointRect(mouseX, mouseY, 350, 200, 100, 150)) {
     if (!playerHasKeyG) {
       messages.add(new Message("This door is locked", 400, 500, 1000));
-    } else if (playerHasKeyR) {
-      print ("YAY U GOT THE KEY UWU");
+    } else if (playerHasKeyG) {
+      screen = -4;
     }
   }
   if (pointRect(mouseX, mouseY, 500, 200, 100, 150)) {
@@ -62,7 +64,7 @@ void pause(boolean firsttime) {
     stopped = millis();
     stop = true;
     //------
-    
+
     if (redx <= 400 && redx >= 0 && redy <= 300 && redy >= 0 && !redon) {
       redon = true;
     }
@@ -75,7 +77,7 @@ void pause(boolean firsttime) {
     if (redx <= 800 && redx >= 400 && redy <= 600 && redy >= 300 && !greenon) {
       greenon = true;
     }
-    
+
     if (redon && yellowon && greenon && blueon && jigsaw == false) {
       if (pointRect(mouseX, mouseY, 300, 275, 200, 50)) {
         pieceSetup();
@@ -86,9 +88,17 @@ void pause(boolean firsttime) {
       for (int i = pieces.length - 1; i >= 0; i--) {
         if (pieces[i] != null && pieces[i].over(mouseX, mouseY)) {
           selected = pieces[i];
-          selected.startDrag(mouseX, mouseY);
-          break;
+          if (!selected.piecelocked) {
+            selected.startDrag(mouseX, mouseY);
+            break;
+          }
         }
+      }
+    }
+    if (greenpw) {
+      if (pointRect(mouseX, mouseY, 200, 150, 400, 100)) {
+        playerHasPWG = true;
+        screen = 0;
       }
     }
   }

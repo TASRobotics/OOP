@@ -28,4 +28,12 @@ void inventory(){
     textSize(50);
     text("Green Key", 100, 300);
   }
+  if(playerHasPWG){
+    fill(0, 255, 0);
+    textSize(50);
+    text(str(password1), 30, 400);
+    text(str(password2), 50, 400);
+    text(str(password3), 70, 400);
+    text(str(password4), 90, 400);
+  }
 }

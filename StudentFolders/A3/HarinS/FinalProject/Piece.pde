@@ -5,6 +5,7 @@ class Piece {
   float offsetX, offsetY;
   String label;
   int targetZone;
+  boolean piecelocked = false;
 
   Piece(float x, float y, float w, float h, color c, String label, int targetZone) {
     this.x = x;
@@ -65,6 +66,7 @@ void mouseReleased() {
       PVector center = correct.center();
       selected.x = center.x - selected.w/2;
       selected.y = center.y - selected.h/2;
+      selected.piecelocked = true;
     }
 
     selected.stopDrag();

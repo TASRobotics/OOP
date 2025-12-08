@@ -129,6 +129,8 @@ boolean redon = false;
 boolean yellowon = false;
 boolean stop = false;
 boolean jigsaw = false;
+boolean greenpw = false;
+boolean done1 = false;
 Piece[] pieces = new Piece[4];
 DropZone[] zones = new DropZone[4];
 Piece selected;
@@ -146,71 +148,91 @@ void pieceSetup() {
 }
 
 void reddoor() {
-  if (jigsaw == false) {
-    fill(255, 0, 0);
-    fill(255);
-    circle(redx, redy, 50);
-    if (stop == false) {
-      redx += redxs;
-      redy += redys;
-      if (redx >= 600 || redx <= 200) {
-        redxs = -redxs;
-      }
-      if (redy >= 400 || redy <= 200) {
-        redys = -redys;
-      }
-    }
-    if (stop) {
-      if (millis() > stopped + stopfor) {
-        stop = false;
-      }
-    }
-    if (redon && !jigsaw) {
+  if (greenpw == true) {
+    greenPW();
+  }
+  if (greenpw == false) {
+    if (jigsaw == false) {
       fill(255, 0, 0);
-      rect(0, 0, 400, 300);
-      fill(100, 0, 0);
-      textSize(100);
-      text(str(password1), 100, 100);
+      fill(255);
+      circle(redx, redy, 50);
+      if (stop == false) {
+        redx += redxs;
+        redy += redys;
+        if (redx >= 600 || redx <= 200) {
+          redxs = -redxs;
+        }
+        if (redy >= 400 || redy <= 200) {
+          redys = -redys;
+        }
+      }
+      if (stop) {
+        if (millis() > stopped + stopfor) {
+          stop = false;
+        }
+      }
+      if (redon && !jigsaw) {
+        fill(255, 0, 0);
+        rect(0, 0, 400, 300);
+        fill(100, 0, 0);
+        textSize(100);
+        text(str(password1), 100, 100);
+      }
+      if (yellowon && !jigsaw) {
+        fill(255, 255, 0);
+        rect(400, 0, 400, 300);
+        fill(100, 100, 0);
+        textSize(100);
+        text(str(password2), 500, 100);
+      }
+      if (blueon && !jigsaw) {
+        fill(0, 0, 255);
+        rect(0, 300, 400, 300);
+        fill(0, 0, 100);
+        textSize(100);
+        text(str(password3), 100, 400);
+      }
+      if (greenon && !jigsaw) {
+        fill(0, 255, 0);
+        rect(400, 300, 400, 300);
+        fill(0, 100, 0);
+        textSize(100);
+        text(str(password4), 500, 400);
+      }
+      if (redon && yellowon && greenon && blueon) {
+        fill(200);
+        rect(300, 275, 200, 50);
+        fill(0);
+        textSize(50);
+        textAlign(LEFT);
+        text("Next", 350, 320);
+      }
     }
-    if (yellowon && !jigsaw) {
-      fill(255, 255, 0);
-      rect(400, 0, 400, 300);
-      fill(100, 100, 0);
-      textSize(100);
-      text(str(password2), 500, 100);
-    }
-    if (blueon && !jigsaw) {
-      fill(0, 0, 255);
-      rect(0, 300, 400, 300);
-      fill(0, 0, 100);
-      textSize(100);
-      text(str(password3), 100, 400);
-    }
-    if (greenon && !jigsaw) {
-      fill(0, 255, 0);
-      rect(400, 300, 400, 300);
-      fill(0, 100, 0);
-      textSize(100);
-      text(str(password4), 500, 400);
-    }
-    if (redon && yellowon && greenon && blueon) {
-      fill(200);
-      rect(300, 275, 200, 50);
-      fill(0);
-      textSize(50);
-      textAlign(LEFT);
-      text("Next", 350, 320);
+    if (jigsaw) {
+      //if (jigsaw && pieces == null) {
+      //  pieceSetup();
+      //}
+      for (DropZone z : zones) {
+        z.show();
+      }
+      for (Piece p : pieces) {
+        if (p != null) p.show();
+      }
+      if (pieces[0].piecelocked == true && pieces[1].piecelocked == true && pieces[2].piecelocked == true && pieces[3].piecelocked == true) {
+        greenpw = true;
+        done1 = true;
+      }
     }
   }
-  if (jigsaw) {
-    //if (jigsaw && pieces == null) {
-    //  pieceSetup();
-    //}
-    for (DropZone z : zones) {
-      z.show();
-    }
-    for (Piece p : pieces) {
-      if (p != null) p.show();
-    }
-  }
+}
+
+void greendoor(){
+  fill(100);
+  rect(200, 300, 400, 100);
+  rect(450, 500, 200, 50);
+  fill(255);
+  text("Return", 450, 500);
+  fill(0, 255, 0);
+  textSize(20);
+  text("Do you know the password?", 200, 300);
 }
