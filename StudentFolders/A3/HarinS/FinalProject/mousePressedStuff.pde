@@ -40,7 +40,6 @@ void doorPressed() {
         messages.add(new Message("This door is locked", 400, 500, 1000));
       } else if (playerHasKeyB) {
         screen = -2;
-        //bluedoor();
       }
     }
   }
@@ -53,7 +52,7 @@ void doYouHaveKey() {
   if (screen == 2 && pointRect(mouseX, mouseY, keybx - 20, keyby - 20, 120, 50)) {
     playerHasKeyB = true; //player has key blue
   }
-  if (done == true && pointRect(mouseX, mouseY, keygx - 20, keygy - 20, 120, 50)) {
+  if (done == true && pointRect(mouseX, mouseY, keygx, keygy - 160, 120, 50)) {
     playerHasKeyG= true; //player has key green
     screen = 0;
   }
@@ -101,5 +100,16 @@ void pause(boolean firsttime) {
         screen = 0;
       }
     }
+  }
+}
+
+void GreenReturn(){
+  if (pointRect(mouseX, mouseY, 450, 500, 200, 50)){
+    i = 0;
+    userpw[0] = null;
+    userpw[1] = null;
+    userpw[2] = null;
+    userpw[3] = null;
+    screen = 0;
   }
 }

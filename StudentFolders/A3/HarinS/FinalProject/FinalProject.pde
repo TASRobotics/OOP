@@ -5,11 +5,12 @@ int password2 = int(random(0, 10));
 int password3 = int(random(0, 10));
 int password4 = int(random(0, 10));
 
-boolean playerHasKeyR = true; // Track if player has collected the red key
-boolean playerHasKeyB = true; // Track if player has collected the blue key
+boolean playerHasKeyR = false; // Track if player has collected the red key
+boolean playerHasKeyB = false; // Track if player has collected the blue key
 boolean playerHasKeyG = false; // Track if player has collected the green key
-boolean playerHasKeyY = false; // Track if player has collected the yellow key
 boolean playerHasPWG = false;
+boolean finished = false;
+int howlong = 0;
 
 int keyrx = 40;
 int keyry = 40;
@@ -44,61 +45,67 @@ void draw() {
   if (mistake <= 0) {
     goscreen();
   }
-  background(50);
-  //for loop to show all messages
-  for (Message m : messages) {
-    m.display();
+  if (finished == true) {
+    complete();
   }
-  // Switch between different screens/rooms
-  switch(screen) {
-  case 0:
-    screen0(); // Draw room 0
-    break;
-  case 1:
-    screen1(); // Draw room 1
-    break;
-  case 2:
-    screen2();
-    break;
-  case 3:
-    screen3();
-    break;
-  case -1:
-    inventory(); // Draw inventory screen
-    break;
-  case -2:
-    bluedoor();
-    break;
-  case -3:
-    reddoor();
-  case -5:
-    break;
-  default:
-    break;
-  }
+  if (!finished) {
+    background(50);
+    //for loop to show all messages
+    for (Message m : messages) {
+      m.display();
+    }
+    // Switch between different screens/rooms
+    switch(screen) {
+    case 0:
+      screen0(); // Draw room 0
+      break;
+    case 1:
+      screen1(); // Draw room 1
+      break;
+    case 2:
+      screen2();
+      break;
+    case -1:
+      inventory(); // Draw inventory screen
+      break;
+    case -2:
+      bluedoor();
+      break;
+    case -3:
+      reddoor();
+      break;
+    case -4:
+      greendoor();
+      break;
+    case -5:
+      break;
+    default:
+      break;
+    }
 
-  //leftbutton
-  if (screen >= 1) {
-    fill(255);
-    rect(30, 285, 50, 25);
-    triangle(20, 300, 50, 350, 50, 250);
-  }
+    //leftbutton
+    if (screen >= 1) {
+      fill(255);
+      rect(30, 285, 50, 25);
+      triangle(20, 300, 50, 350, 50, 250);
+    }
 
-  //rightbutton
-  if (screen <= 3 && screen >= 0) {
-    fill(255);
-    rect(720, 285, 50, 25);
-    triangle(780, 300, 750, 350, 750, 250);
-  }
+    //rightbutton
+    if (screen < 2 && screen >= 0) {
+      fill(255);
+      rect(720, 285, 50, 25);
+      triangle(780, 300, 750, 350, 750, 250);
+    }
 
-  if (mistake <= 0) {
-    goscreen();
-  }
+    if (mistake <= 0) {
+      goscreen();
+    }
 
-  //customPress(); // Handle player movement
-  //if(screen != -1){ // Only draw player if not in inventory
-  //  drawPlayer();
-  //}
+    //customPress(); // Handle player movement
+    //if(screen != -1){ // Only draw player if not in inventory
+    //  drawPlayer();
+    //}
+  }
 }
 
 //void drawPlayer() {
@@ -132,13 +139,13 @@ void drawKeyB() {
 void drawKeyG() {
   fill(0, 255, 0); // Light gray for the blade
   noStroke();
-  circle(keygx, keygy, 50);
-  rect(keygx, keygy - 10, 75, 20);
-  rect(keygx + 40, keygy, 10, 20);
-  rect(keygx + 55, keygy, 10, 20);
+  circle(keygx, keygy - 150, 50);
+  rect(keygx, keygy - 160, 75, 20);
+  rect(keygx + 40, keygy - 150, 10, 20);
+  rect(keygx + 55, keygy - 150, 10, 20);
 }
 
-void greenPW(){
+void greenPW() {
   fill(100);
   noStroke();
   rect(200, 150, 400, 100);
@@ -181,6 +188,9 @@ void keyPressed(KeyEvent e) {
       screen = lastScreen;
     }
   }
+  if (screen == -4) {
+    myKeyPressed();
+  }
 }
 
 void keyReleased(KeyEvent e) {
@@ -198,7 +208,7 @@ void mousePressed() {
   if (pointRect(mouseX, mouseY, 30, 285, 50, 25) && screen != 0) {
     screen -= 1;
   }
-  if (pointRect(mouseX, mouseY, 720, 285, 50, 25)) {
+  if (pointRect(mouseX, mouseY, 720, 285, 50, 25) && screen != 2) {
     screen += 1;
   }
 
@@ -214,5 +224,6 @@ void mousePressed() {
   }
   if (screen == -4) {
     greendoor();
+    GreenReturn();
   }
 }

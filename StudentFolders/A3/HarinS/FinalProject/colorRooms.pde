@@ -226,13 +226,49 @@ void reddoor() {
   }
 }
 
-void greendoor(){
+String userpw[] = new String [4];
+int i = 0;
+
+void greendoor() {
+  println(userpw[0] + userpw[1] + userpw[2] + userpw[3]);
+  textAlign(LEFT);
   fill(100);
-  rect(200, 300, 400, 100);
   rect(450, 500, 200, 50);
   fill(255);
-  text("Return", 450, 500);
+  textSize(50);
+  text("Return", 460, 540);
   fill(0, 255, 0);
+  text("Type the password!", 200, 100);
   textSize(20);
-  text("Do you know the password?", 200, 300);
+  if (userpw[0] != null) {
+    text(userpw[0], 100, 200);
+  }
+  if (userpw[1] != null) {
+    text(userpw[1], 200, 200);
+  }
+  if (userpw[2] != null) {
+    text(userpw[2], 300, 200);
+  }
+  if (userpw[3] != null) {
+    text(userpw[3], 400, 200);
+  }
+
+  if (i == 4 && userpw[3] != null) {
+    String entered = userpw[0] + userpw[1] + userpw[2] + userpw[3];
+    String correct = str(password1) + str(password2) + str(password3) + str(password4);
+
+    if (!entered.equals(correct)) {
+      goscreen();
+    } else {
+      finished = true;
+      howlong = millis();
+    }
+  }
+}
+
+void myKeyPressed() {
+  if (i < 4 && key >= '0' && key <= '9') {
+    userpw[i] = str(key);
+    i++;
+  }
 }

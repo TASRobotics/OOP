@@ -10,3 +10,12 @@ textSize(150);
 fill(255);
 text("GAME OVER", 30, 300);
 }
+
+void complete() {
+  background(255);
+  textSize(50);
+  fill(50);
+  text("You beat the game!", 100, 200);
+  text("Time taken:", 100, 300);
+  text(str(howlong), 100, 400);
+}

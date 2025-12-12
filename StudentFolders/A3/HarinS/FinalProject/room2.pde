@@ -14,20 +14,20 @@ void screen2() {
   int moveEvery = 3;
   int lastMoved = millis();
   // Rectangle 1
-  fill(255, 165, 0); // Bright Orange
-  rect(150, 120, 180, 90); // x, y, width, height
+  fill(230, 165, 0); // Bright Orange
+  rect(200, 400, 180, 90); // x, y, width, height
 
   // Rectangle 2
-  fill(75, 0, 130); // Indigo
-  rect(350, 250, 140, 120);
+  fill(0, 200, 130); // Indigo
+  rect(300, 100, 200, 100);
 
   // Rectangle 3
-  fill(0, 255, 255); // Cyan
-  rect(500, 100, 200, 150);
+  fill(150, 0, 30); // Cyan
+  rect(600, 200, 150, 230);
 
   // Rectangle 4
-  fill(255, 20, 147); // Deep Pink
-  rect(600, 400, 160, 90);
+  fill(0, 80, 147); // Deep Pink
+  rect(100, 120, 160, 90);
 
   // Check for sword collection and render sword if not collected
   //checkIfPlayerIsTouchingSword(); // Check if player is touching the sword

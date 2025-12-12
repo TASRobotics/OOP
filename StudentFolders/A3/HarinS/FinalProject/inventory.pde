@@ -31,9 +31,9 @@ void inventory(){
   if(playerHasPWG){
     fill(0, 255, 0);
     textSize(50);
-    text(str(password1), 30, 400);
-    text(str(password2), 50, 400);
-    text(str(password3), 70, 400);
-    text(str(password4), 90, 400);
+    text(str(password1), 100, 400);
+    text(str(password2), 120, 400);
+    text(str(password3), 140, 400);
+    text(str(password4), 160, 400);
   }
 }
