@@ -1,28 +1,21 @@
-static final int MAX_LAYER = 4;
-static final int MAX_ITEMS = 5; // must be less than 9
-static int CHUNK_W; // Will be set to half of width
-static final int RENDER_CHUNK_RADIUS = 0; // max # chunks from the current on-screen chunks that will be rendered
-static final int LIVE_CHUNK_RADIUS = 2; // max # chunks away from the current on-screen chunks that will be updated
-static final boolean MINIMIZE_GRAPHICS = true; // minimize details
-
-static final float TRAMPOLINE_SPAWN_CHANCE = 0.25; // [0, 1]
-static final int TRAMPOLINE_W = 100;
-static final int TRAMPOLINE_H = 20;
-
-// Debugging
-static final boolean SPAWN_ENEMIES = true; // default: true
-static final boolean CONSTANT_DAYTIME = false; // default: false
-static final boolean ALLOW_FLYING = false; // default: false
-
 public interface Displayable {
   public void display();
 }
 public interface HasHealth {
   public float getHealth();
   public float getMaxHealth();
+  public float getSacrificialHealth();
   public void damage(float x);
   public void heal(float x);
   public void setHealth(float x);
+}
+public interface Killable {
+  public boolean getIsDead();
+}
+
+@FunctionalInterface
+public interface Spawner {
+  void spawn(PVector pos, boolean isUpsideDown);
 }
 
 class World implements Displayable {
@@ -31,7 +24,7 @@ class World implements Displayable {
   private PVector offset;
   private float viewportPadding = 500;
   private float constructPadding = 100; // Construct the world when viewport is 100 px away from void
-  private Layer[] layers = new Layer[MAX_LAYER+1]; // 0 thru 10; 0 is foreground; 10 is background
+  private Layer[] layers = new Layer[Constants.MAX_LAYER+1]; // 0 thru 10; 0 is foreground; 10 is background
 
   private Terrain rightsideUpTerr;
   private Terrain upsideDownTerr; 
@@ -47,6 +40,13 @@ class World implements Displayable {
   private ArrayList<Platform> platforms;
   private ArrayList<Enemy> enemies;
   private ArrayList<Bullet> bullets;
+  private ArrayList<ItemEntity> itemEntities;
+  
+  private Spawner[] spawnableEnemies = {
+    (PVector pos, boolean isUpsideDown) -> createEnemy(new BoringZombie(pos, isUpsideDown)),
+    (PVector pos, boolean isUpsideDown) -> createEnemy(new Roofus(pos, isUpsideDown)),
+    (PVector pos, boolean isUpsideDown) -> createEnemy(new Vestido(pos, isUpsideDown))
+  };
 
   World(int worldWidth, MrKeyboard keyboard) {
     this.keyboard = keyboard;
@@ -62,25 +62,20 @@ class World implements Displayable {
     this.platforms = new ArrayList<>();
     this.enemies = new ArrayList<>();
     this.bullets = new ArrayList<>();
+    this.itemEntities = new ArrayList<>();
 
-    CHUNK_W = width/2;
+    Constants.CHUNK_W = width/2;
 
     for (int i=0; i<layers.length; i++) {
       this.layers[i] = new Layer();
     }
 
-    addItem(new Flag());
     addItem(new Knife());
-    addItem(new Knife(0, 10, 50, 25));
-    addItem(new ShootingThing());
-    // addItem(new ShootingThing(0, 100, 100000, 0));
+    createItemEntity(new ItemEntity(new PVector(700, 500), new ShootingThing()));
 
     createPlatform(new PVector(100, 500), 200, 50);
     createPlatform(new PVector(300, 450), 200, 50);
     createPlatform(new PVector(500, 400), 200, 50);
-
-    createEnemy(new Roofus(new PVector(500, 500)));
-    createEnemy(new Roofus(new PVector(900, 500)));
   }
   
   public Meeple getMeeple() {
@@ -100,7 +95,7 @@ class World implements Displayable {
     return this.selectedItemIndex;
   }
   public int itemCapacityLeft() {
-    return MAX_ITEMS-this.items.size();
+    return Constants.MAX_ITEMS-this.items.size();
   }
   public void addItem(Item item) {
     if (itemCapacityLeft() > 0) {
@@ -108,7 +103,7 @@ class World implements Displayable {
     }
   }
   public void setSelectedItem(int i) {
-    if (i >= 0 && i < MAX_ITEMS) {
+    if (i >= 0 && i < Constants.MAX_ITEMS) {
       Item item = (i < items.size()) ? items.get(i) : null;
       this.meeple.setCurrentlyHeldItem(item);
       this.selectedItemIndex = i;
@@ -132,21 +127,55 @@ class World implements Displayable {
   }
 
   private void spawnEnemies(float minX, float maxX) {
-    if (!SPAWN_ENEMIES) return;
+    int maxNumEnemiesDay;
+    int maxNumEnemiesNight;
+    int worldW = rightsideUpTerr.getMaxX();
 
-    int numEnemies = int(random(1, 3));
+    if (worldW > Constants.CHUNK_W*10) {
+      maxNumEnemiesDay = 5;
+      maxNumEnemiesNight = 8;
+
+    } else if (worldW > Constants.CHUNK_W*5) {
+      maxNumEnemiesDay = 4;
+      maxNumEnemiesNight = 6;
+    } else {
+      maxNumEnemiesDay = 3;
+      maxNumEnemiesNight = 5;
+    }
+
+    int numEnemies = int(random(1, maxNumEnemiesDay));
     float dayPercentage = env.getDayPercentage();
 
     if (dayPercentage < 0.25) {
-      numEnemies = int(random(3, 8));
+      numEnemies = int(random(3, maxNumEnemiesNight));
     }
 
+    // Rightside up
     for (int i=0; i<numEnemies; i++) {
       float randX = random(minX, maxX);
-      PVector pos = new PVector(randX, rightsideUpTerr.getHeightAt(randX));
+      PVector pos = new PVector(randX, rightsideUpTerr.getHeightAt(randX)); // FIXME: yea, this is under the floor, but it snaps up anyways,
+                                                                            // and im too lazy to fix it
 
-      createEnemy(new BoringZombie(pos));
+      int randIdx = int(random(0, spawnableEnemies.length));
+      spawnableEnemies[randIdx].spawn(pos, false);
     }
+
+    // Upside down
+    for (int i=0; i<numEnemies; i++) {
+      float randX = random(minX, maxX);
+      PVector pos = new PVector(randX, upsideDownTerr.getHeightAt(randX));
+      
+      int randIdx = int(random(0, spawnableEnemies.length));
+      spawnableEnemies[randIdx].spawn(pos, true);
+    }
+  }
+  private void spawnFlags(float minX, float maxX) {
+    if (random(0, 1) >= Constants.FLAG_SPAWN_CHANCE) return;
+    boolean isUpsideDown = random(0, 1) < 0.5;
+
+    float x = random(minX, maxX);
+    float y = rightsideUpTerr.getHeightAt(x);
+    createItemEntity(new ItemEntity(new PVector(x, y-Constants.BLOCK_UNIT), new Flag(), isUpsideDown));
   }
 
   public void update() {
@@ -155,21 +184,23 @@ class World implements Displayable {
     // Receive user input
     long t_receiveInput = System.nanoTime(); // DEBUGGER #####################################
     if (meeple != null) {
+      Terrain terrainToUse = getTerrainToUse(meeple.getIsUpsideDown());
+
       // User input
       if (keyboard.isKeyDown('A')) {
         meeple.move(false);
-        if (!MINIMIZE_GRAPHICS && meeple.isGrounded(rightsideUpTerr, meeple.isUpsideDown())) {
+        if (!Constants.MINIMIZE_GRAPHICS && meeple.isGrounded(terrainToUse, platforms, meeple.getIsUpsideDown())) {
           dirtPs.spawn(2, () -> new PVector(random(2, 5), random(-2, 0)), () -> new PVector());
         }
       }
       if (keyboard.isKeyDown('D')) {
         meeple.move(true);
-        if (!MINIMIZE_GRAPHICS && meeple.isGrounded(rightsideUpTerr, meeple.isUpsideDown())) {
+        if (!Constants.MINIMIZE_GRAPHICS && meeple.isGrounded(terrainToUse, platforms, meeple.getIsUpsideDown())) {
           dirtPs.spawn(2, () -> new PVector(random(-2, -5), random(-2, 0)), () -> new PVector());
         }
       }
       if (keyboard.isKeyTapped(' ')) {
-        meeple.jump(rightsideUpTerr, platforms);
+        meeple.jump(terrainToUse, platforms);
       }
       if (keyboard.isKeyDown('j')) {
         meeple.attack(this);
@@ -180,7 +211,7 @@ class World implements Displayable {
         gun.reload();
       }
 
-      for (int i=0; i<MAX_ITEMS; i++) {
+      for (int i=0; i<Constants.MAX_ITEMS; i++) {
         if (this.keyboard.isKeyDown((""+(i+1)).charAt(0))) {
           setSelectedItem(i);
         }
@@ -192,6 +223,11 @@ class World implements Displayable {
       }
       if (keyboard.isKeyTapped('u')) {
         meeple.flip();
+        // if(meeple.getIsUpsideDown()) {
+        //   dirtPs.setOffset(new PVector(0, -meeple.getH()));
+        // } else {
+        //   dirtPs.setOffset(new PVector());
+        // }
       }
 
       // Move viewport
@@ -220,35 +256,54 @@ class World implements Displayable {
 
     long t_allLayers = System.nanoTime(); // DEBUGGER #####################################
 
-    int startChunk = getChunkIn(offset)[0]-LIVE_CHUNK_RADIUS;
-    int endChunk = getChunkIn(offset)[1]+LIVE_CHUNK_RADIUS;
+    int startChunk = getChunkIn(offset)[0] - Constants.LIVE_CHUNK_RADIUS;
+    int endChunk = getChunkIn(offset)[1] + Constants.LIVE_CHUNK_RADIUS;
 
     for (int i=layers.length-1; i>=0; i--) {
-      layers[i].update(this, startChunk*CHUNK_W, endChunk*CHUNK_W);
+      layers[i].update(this, startChunk * Constants.CHUNK_W, endChunk * Constants.CHUNK_W);
     }
 
     logStats("UPDATE all layers", (System.nanoTime()-t_allLayers)/1e6); // DEBUGGER #######
     
     if (meeple != null) {
       // Check if player dropped into void
-      if (!meeple.isUpsideDown() && meeple.getTop().y >= height+200 || meeple.isUpsideDown() && meeple.getBottom().y <= -200) {
+      if (!meeple.getIsUpsideDown() && meeple.getTop().y >= height+200 || meeple.getIsUpsideDown() && meeple.getBottom().y <= -200) {
         meeple.damage(10);
       }
 
       // Check for death
-      if (meeple.isDead()) {
+      if (meeple.getIsDead()) {
         setGameOver(true);
       }
     }
 
+    // Check if meeple needs to be healed
+    for (Enemy e : enemies) {
+      if (e.getIsDead() && !e.getIsSuicide()) {
+        meeple.heal(e.getSacrificialHealth());
+
+        score += e.getSacrificialHealth()*10;
+      }
+    }
+
     // Check for death
+    for (int i=items.size()-1; i>=0; i--) {
+      if(items.get(i).getIsDead()) {
+        items.remove(i);
+      }
+    }
+    for (int i=itemEntities.size()-1; i>=0; i--) {
+      if(itemEntities.get(i).getIsDead()) {
+        itemEntities.remove(i);
+      }
+    }
     for (int i=enemies.size()-1; i>=0; i--) {
-      if(enemies.get(i).isDead()) {
+      if(enemies.get(i).getIsDead()) {
         enemies.remove(i);
       }
     }
     for (int i=bullets.size()-1; i>=0; i--) {
-      if(bullets.get(i).isDead()) {
+      if(bullets.get(i).getIsDead()) {
         bullets.remove(i);
       }
     }
@@ -262,7 +317,7 @@ class World implements Displayable {
     logStats("UPDATE glow-ify meeple", timeDiffFromNano(t_glow)); // DEBUGGER ####
 
     logGeneralStats("World update fn", timeDiffFromNano(t)); // DEBUGGER ################################
-    logGeneralStats("Chunks generated", (rightsideUpTerr.getMaxX()-rightsideUpTerr.getMinX())/(float) CHUNK_W);
+    logGeneralStats("Chunks generated", (rightsideUpTerr.getMaxX()-rightsideUpTerr.getMinX())/(float) Constants.CHUNK_W);
   }
 
   public void display() {
@@ -280,14 +335,14 @@ class World implements Displayable {
     long t_layers = System.nanoTime();
     for (int i=layers.length-1; i>=0; i--) {
       totalItems += layers[i].getNumItems();
-      layers[i].display(startChunk*CHUNK_W, endChunk*CHUNK_W);
+      layers[i].display(startChunk * Constants.CHUNK_W, endChunk * Constants.CHUNK_W);
     }
     logStats("DISPLAY all layers", timeDiffFromNano(t_layers));
 
 
     long t_terrs = System.nanoTime();
-    rightsideUpTerr.display(startChunk*CHUNK_W, endChunk*CHUNK_W);
-    upsideDownTerr.display(startChunk*CHUNK_W, endChunk*CHUNK_W);
+    rightsideUpTerr.display(startChunk * Constants.CHUNK_W, endChunk * Constants.CHUNK_W);
+    upsideDownTerr.display(startChunk * Constants.CHUNK_W, endChunk * Constants.CHUNK_W);
     logStats("DISPLAY terrain", timeDiffFromNano(t_terrs));
 
 
@@ -301,12 +356,14 @@ class World implements Displayable {
   }
 
   private int[] getChunkIn(PVector offset) {
-    int startChunk = floor(offset.x/CHUNK_W);
-    int endChunk = ceil((offset.x+width)/CHUNK_W);
+    int startChunk = floor(offset.x / Constants.CHUNK_W);
+    int endChunk = ceil((offset.x+width) / Constants.CHUNK_W);
 
     return new int[]{startChunk, endChunk};
   }
-
+  public Terrain getTerrainToUse(boolean isUpsideDown) {
+    return isUpsideDown ? upsideDownTerr : rightsideUpTerr;
+  }
 
 
 
@@ -327,12 +384,18 @@ class World implements Displayable {
     platforms.add(t);
   }
   public void createEnemy(Enemy e) {
+    if (!Constants.SPAWN_ENEMIES) return;
+
     layers[2].register(e);
     enemies.add(e);
   }
   public void createBullet(Bullet b) {
     layers[2].register(b);
     bullets.add(b);
+  }
+  public void createItemEntity(ItemEntity e) {
+    layers[2].register(e);
+    itemEntities.add(e);
   }
 
 
@@ -351,26 +414,30 @@ class World implements Displayable {
 
     // Construct right
     if (offset.x+width >= rightsideUpTerr.maxX - constructPadding) {
-      int maxX = rightsideUpTerr.maxX+CHUNK_W;
+      int maxX = rightsideUpTerr.maxX + Constants.CHUNK_W;
       int minX = rightsideUpTerr.maxX;
-      this.rightsideUpTerr.constructRight(CHUNK_W);
-      this.upsideDownTerr.constructRight(CHUNK_W);
-      this.generateDeco(minX, maxX);
+      rightsideUpTerr.constructRight(Constants.CHUNK_W);
+      upsideDownTerr.constructRight(Constants.CHUNK_W);
+      generateDeco(minX, maxX);
 
-      this.spawnEnemies(minX, maxX);
+      spawnEnemies(minX, maxX);
+      spawnFlags(minX, maxX);
 
-      if (random(0, 1) < TRAMPOLINE_SPAWN_CHANCE) {
+
+      if (random(0, 1) < Constants.TRAMPOLINE_SPAWN_CHANCE) {
         println("Spawned trampoline");
 
         float x = random(minX, maxX);
         if (random(0, 1) < 0.5) {
           float terrY = rightsideUpTerr.getHeightAt(x);
-          createTrampoline(new PVector(x, terrY-TRAMPOLINE_H), TRAMPOLINE_W, TRAMPOLINE_H); // Rightside up
+          createTrampoline(new PVector(x, terrY - Constants.TRAMPOLINE_H), Constants.TRAMPOLINE_W, Constants.TRAMPOLINE_H); // Rightside up
         } else {
           float terrY = upsideDownTerr.getHeightAt(x);
-          createTrampoline(new PVector(x, terrY), TRAMPOLINE_W, TRAMPOLINE_H); // Upside down
+          createTrampoline(new PVector(x, terrY), Constants.TRAMPOLINE_W, Constants.TRAMPOLINE_H); // Upside down
         }
       }
+
+      score += 50; // score variable from side_scroller.pde
     }
   }
 

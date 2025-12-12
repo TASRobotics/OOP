@@ -71,17 +71,17 @@ public class RectBody extends Body {
         for (Platform p : platforms) {
             boolean falling = abs(entity.getVel().y) > 0;
             boolean wasAbove = false;
-            if (!entity.isUpsideDown()) wasAbove = entity.getPrevPos().y+this.h <= p.getPos().y;
+            if (!entity.getIsUpsideDown()) wasAbove = entity.getPrevPos().y+this.h <= p.getPos().y;
             else wasAbove = entity.getPrevPos().y >= p.getPos().y+p.getH();
 
             if (falling && wasAbove) {
                 CollisionResult res = Collision.check(p.getBody(), this);
 
                 boolean correctCollisionPlace;
-                if (!entity.isUpsideDown()) correctCollisionPlace = res.side == "bottom";
+                if (!entity.getIsUpsideDown()) correctCollisionPlace = res.side == "bottom";
                 else correctCollisionPlace = res.side == "top";
 
-                if (res.collided && correctCollisionPlace) {
+                if ((res.collided || wasAbove) && correctCollisionPlace) {
                     grounded = true;
 
                     entity.getVel().y = 0;
@@ -91,7 +91,7 @@ public class RectBody extends Body {
                         damageExempt = true;
 
                         // Boost jump!
-                        entity.getVel().y = 500 * entity.getDirection();
+                        entity.getVel().y = -1000 * entity.getDirection();
                     }
                 }
             }
@@ -99,12 +99,12 @@ public class RectBody extends Body {
 
         if (grounded) {
              // Fall damage
-            if (!damageExempt && entity.isFlipping() && entity instanceof HasHealth) {
+            if (!damageExempt && entity.getIsFlipping() && entity instanceof HasHealth) {
                 HasHealth damageable = (HasHealth) entity;
                 damageable.damage(25);
             }
 
-            entity.setIsFlipping(false);
+            entity.setgetIsFlipping(false);
         }
     }
 

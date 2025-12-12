@@ -25,6 +25,8 @@ public color PLATFORM_BLUE = color(0, 28, 54);
 private World world;
 private PVector GRAVITY = new PVector(0, 1_500); // px/s
 
+public int score = 0;
+
 private float lastTime;
 private float totalTime = 0;
 private float dt = 1/10f; // Delta time (initialize with )
@@ -40,7 +42,7 @@ private ArrayList<LogEntry> generalLog = new ArrayList<>();
 private LongHealthBar meepleHealthBar;
 
 // DEBUGGING!!
-private boolean showStats = false;
+private boolean SHOW_STATS = false;
 ArrayList<Float> verticals = new ArrayList<>();
 ArrayList<Float> horizontals = new ArrayList<>();
 
@@ -84,7 +86,7 @@ void draw() {
     world.constructWorld();
     world.update();
 
-    if (keyboard.isKeyTapped('t')) showStats = !showStats;
+    if (keyboard.isKeyTapped('t')) SHOW_STATS = !SHOW_STATS;
 
     // Display
     textSize(64);
@@ -114,30 +116,39 @@ void draw() {
       meepleHealthBar.update();
       meepleHealthBar.display(GREEN);
 
+      // Score
+      if (!SHOW_STATS) {
+        textAlign(RIGHT, TOP);
+        fill(255);
+        textSize(64);
+        text(score, width-10, 10);
+        textAlign(CENTER, CENTER);
+      }
+
       // Item bar
       ArrayList<Item> items = world.getItems();
       Item currentlySelected = meeple.getCurrentlyHeldItem();
       float padding = 20;
-      PVector nowPos = new PVector(50, height-ICON_H-50);
+      PVector nowPos = new PVector(50, height-Constants.BLOCK_UNIT-50);
 
-      for (int i=0; i<MAX_ITEMS; i++) {
+      for (int i=0; i<Constants.MAX_ITEMS; i++) {
         if (i < items.size()) {
           Item currentItem = items.get(i);
           currentItem.iconDisplay(nowPos);
         } else {
           noStroke();
           fill(255, 50);
-          rect(nowPos.x, nowPos.y, ICON_W, ICON_H);
+          rect(nowPos.x, nowPos.y, Constants.BLOCK_UNIT, Constants.BLOCK_UNIT);
         }
 
         if (world.getSelectedItemIndex() == i) {
             stroke(ORANGE);
             strokeWeight(4);
             noFill();
-            rect(nowPos.x, nowPos.y, ICON_W, ICON_H);
+            rect(nowPos.x, nowPos.y, Constants.BLOCK_UNIT, Constants.BLOCK_UNIT);
           }
 
-        nowPos.x += ICON_W+padding;
+        nowPos.x += Constants.BLOCK_UNIT+padding;
       }
 
 
@@ -163,7 +174,7 @@ void draw() {
 
 
     // Debugging
-    if (showStats) {
+    if (SHOW_STATS) {
       textAlign(RIGHT,TOP);
       logGeneralStats("TOTAL Draw loop", (System.nanoTime() - t)/1e6); // DEBUGGER #######
 
@@ -172,8 +183,8 @@ void draw() {
       text(round(frameRate) + " / " + int(dt()*1000)/1000f, width-10, 10);
 
       textSize(32);
-      fill(meeple.isUpsideDown() ? ORANGE : BLUE);
-      text(meeple.isUpsideDown() ? "UPSIDE DOWN" : "RIGHTSIDE UP", width-10, 74);
+      fill(meeple.getIsUpsideDown() ? ORANGE : BLUE);
+      text(meeple.getIsUpsideDown() ? "UPSIDE DOWN" : "RIGHTSIDE UP", width-10, 74);
 
       
       int idx = 0;
@@ -237,7 +248,7 @@ void draw() {
     textAlign(CENTER, CENTER);
     textSize(32);
     text("GAME OVER", width/2, height/2);
-    text("You survived for " + floor(totalTime) + " seconds", width/2, height/2+32);
+    text("You survived with a score of " + floor(score), width/2, height/2+32);
   }
 }
 
@@ -362,7 +373,7 @@ void drawWavyBox2(RectBody box, int waveMaxSideLen, color rect, color wave) {
   float w = box.getW();
   float h = box.getH();
 
-  if (!MINIMIZE_GRAPHICS) {
+  if (!Constants.MINIMIZE_GRAPHICS) {
     // Wavy decoration (clockwise)
     fill(wave);
     noStroke();

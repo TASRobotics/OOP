@@ -3,16 +3,18 @@ public abstract class Enemy<T extends Body> extends Entity<T> implements HasHeal
     private float maxHealth;
 
     protected float movementSpeed; // px
+    private float sacrificialHealth;
 
     private int cooldown; // ms
     protected float damage;
     private Integer lastAttacked;
 
-    Enemy(T body, float movementSpeed, float damage, int cooldown, int maxHealth) {
-        super(body);
+    Enemy(T body, float movementSpeed, float damage, int cooldown, int maxHealth, int sacrificialHealth, boolean isUpsideDown) {
+        super(body, isUpsideDown);
 
         this.maxHealth = maxHealth;
         this.health = maxHealth;
+        this.sacrificialHealth = sacrificialHealth;
 
         this.movementSpeed = movementSpeed;
 
@@ -26,6 +28,9 @@ public abstract class Enemy<T extends Body> extends Entity<T> implements HasHeal
     public float getMaxHealth() {
         return this.maxHealth;
     }
+    public float getSacrificialHealth() {
+        return this.sacrificialHealth;
+    }
     public void damage(float h) {
       this.health -= min(this.health, h);
       if (this.health == 0) this.isDead = true;
@@ -36,6 +41,9 @@ public abstract class Enemy<T extends Body> extends Entity<T> implements HasHeal
     
     public void setHealth(float h) {
         this.health = h;
+    }
+    public void setMovementSpeed(float m) {
+        this.movementSpeed = m;
     }
 
     protected abstract void move(Meeple meeple);
@@ -58,11 +66,11 @@ public abstract class Enemy<T extends Body> extends Entity<T> implements HasHeal
         Meeple meeple = world.getMeeple();
 
         if (meeple != null) {
-            this.move(meeple);
+            move(meeple);
 
-            if (this.attackConditionSatisfied(meeple)) {
-                if (this.cooldownSatisfied()) {
-                    this.attack(world);
+            if (attackConditionSatisfied(meeple)) {
+                if (cooldownSatisfied()) {
+                    attack(world);
                     lastAttacked = millis();
                 }
             } else {

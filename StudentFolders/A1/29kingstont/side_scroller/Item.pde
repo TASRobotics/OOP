@@ -1,17 +1,41 @@
-static final int ICON_W = 40;
-static final int ICON_H = 40;
+public abstract class Item implements Killable {
+    private boolean isStackable;
+    private int durability;
+    private boolean isDead = false;
 
-public abstract class Item {
-    Item() {
-        
+    Item(boolean isStackable) {
+        this.isStackable = isStackable;
+        this.durability = 1000;
+    }
+    Item(boolean isStackable, int durability) {
+        this.isStackable = isStackable;
+        this.durability = durability;
+    }
+
+    public boolean getIsDead() {
+        return this.isDead;
+    }
+
+    public boolean getIsStackable() {
+        return this.isStackable;
     }
 
     // Some items might need to update every tick
     public void update() {}
 
-    public abstract void use(Entity user, World world);
+    public void use(Entity user, World world) {
+        durability -= 1;
+
+        if (durability <= 0) isDead = true;
+
+        useAction(user, world);
+    };
+    public abstract void useAction(Entity user, World world);
     public abstract void handheldDisplay(Entity user);
     // public abstract void entityDisplay(PVector pos); // FIXME: SHOULDN'T BE HERE- SHOULD BE IN SEPARATE ITEM ENTITY CLASS
                                                         // THAT WAY IT CAN MANAGE ITS OWN POSITION, VELOCITY, AND ACCELERATION
     public abstract void iconDisplay(PVector pos);
+
+    @Override
+    public abstract boolean equals(Object that);
 }

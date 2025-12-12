@@ -4,7 +4,7 @@ public class Meeple extends Entity<RectBody> implements HasHealth {
 
   private int movementSpeed; // px
 
-  private float jumpVel;
+  private float jumpVel = 500;
   private boolean didDoubleJump;
   private int layer;
   private boolean isHatOn;
@@ -16,7 +16,6 @@ public class Meeple extends Entity<RectBody> implements HasHealth {
     this.maxHealth = 100;
     this.health = this.maxHealth;
     
-    this.jumpVel = 600; // px
     this.didDoubleJump = false;
 
     this.movementSpeed = 200;
@@ -40,6 +39,9 @@ public class Meeple extends Entity<RectBody> implements HasHealth {
   }
   public float getHealth() {
       return this.health;
+  }
+  public float getSacrificialHealth() {
+      return 0;
   }
   public void damage(float h) {
       this.health -= min(this.health, h);
@@ -66,12 +68,12 @@ public class Meeple extends Entity<RectBody> implements HasHealth {
 
     this.setIsFacingRight(isRight);
   }
-  public void jump(Terrain rightsideUpTerr, ArrayList<Platform> platforms) {
-    if (isGrounded(rightsideUpTerr, platforms, isUpsideDown) || !this.didDoubleJump) {
+  public void jump(Terrain terr, ArrayList<Platform> platforms) {
+    if (isGrounded(terr, platforms, isUpsideDown) || !this.didDoubleJump) {
       float directionalJumpVel = -this.jumpVel * this.getDirection();
       this.setVel(new PVector(0, directionalJumpVel));
 
-      if (!isGrounded(rightsideUpTerr, platforms, isUpsideDown)) this.didDoubleJump = true;
+      if (!isGrounded(terr, platforms, isUpsideDown)) this.didDoubleJump = true;
     }
   }
 
@@ -81,23 +83,34 @@ public class Meeple extends Entity<RectBody> implements HasHealth {
       ArrayList<Entity> targets = new ArrayList<Entity>();
       targets.addAll(world.enemies);
 
-      weapon.use(this, targets);
+      weapon.useAction(this, targets);
     }
   }
   
 
-  public boolean isGrounded(Terrain rightsideUpTerr, boolean isUpsideDown) {
-    return this.body.isGrounded(rightsideUpTerr, isUpsideDown);
+  public boolean isGrounded(Terrain terr, boolean isUpsideDown) {
+    return this.body.isGrounded(terr, isUpsideDown);
   }
-  public boolean isGrounded(Terrain rightsideUpTerr, ArrayList<Platform> platforms, boolean isUpsideDown) {
-    return this.body.isGrounded(rightsideUpTerr, platforms, isUpsideDown);
+  public boolean isGrounded(Terrain terr, ArrayList<Platform> platforms, boolean isUpsideDown) {
+    return this.body.isGrounded(terr, platforms, isUpsideDown);
   }
 
   @Override
   void update(World world) {
     super.update(world);
-    logGeneralStats("Meeple Y Vel", this.vel.y);
-    if (this.isGrounded(world.rightsideUpTerr, world.platforms, isUpsideDown)) this.didDoubleJump = false;
+    logGeneralStats("Meeple Y Vel", vel.y);
+
+    ArrayList<ItemEntity> itemEntities = world.itemEntities;
+    for (ItemEntity e : itemEntities) {
+      if (Collision.check(this.body, e.getBody()).collided) {
+        if (world.itemCapacityLeft() > 0) {
+          Item i = e.collect();
+          world.addItem(i);
+        }
+      }
+    }
+
+    if (isGrounded(world.getTerrainToUse(isUpsideDown), world.platforms, isUpsideDown)) didDoubleJump = false;
   }
 
   @Override
@@ -106,8 +119,8 @@ public class Meeple extends Entity<RectBody> implements HasHealth {
     pushMatrix();
 
     // origin → bottom‐center of character box
-    translate(this.getPos().x + this.getBody().getW()/2,
-              this.getPos().y + this.getBody().getH());
+    translate(getPos().x + getBody().getW()/2,
+              getPos().y + getBody().getH());
 
     // --- sizes ---
     float bodyW = this.getBody().getW();

@@ -1,8 +1,8 @@
 public class Roofus extends BoringZombie {
     private int numAttacks = 0;
     private final int spawnEvery = 1;
-    Roofus(PVector pos) {
-        super(pos, 1, 2, 1000, 50);
+    Roofus(PVector pos, boolean isUpsideDown) {
+        super(pos, 1, 2, 1000, 50, 3, isUpsideDown);
     }
 
     @Override
@@ -10,13 +10,13 @@ public class Roofus extends BoringZombie {
         Meeple meeple = world.getMeeple();
         if (meeple == null) return;
 
-        weapon.use(this, meeple);
+        weapon.useAction(this, meeple);
         numAttacks++;
 
         if (numAttacks % spawnEvery == 0) {
             float enemyX = random(world.getOffset().x, world.getOffset().x+width);
-            Enemy enemy = new Minion(new PVector(enemyX, 500));
-            world.createEnemy(enemy);
+            Enemy enemy = new Minion(new PVector(enemyX, 500), getIsUpsideDown());
+        world.createEnemy(enemy);
         }
     }
 

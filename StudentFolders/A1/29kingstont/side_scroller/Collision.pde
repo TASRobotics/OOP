@@ -38,7 +38,9 @@ public static class Collision {
         return CollisionResult.none();
     }
 
-    // ChatGPTed
+
+
+    // ChatGPTed because this is literally never used. Idk why I don't just remove CircleBody -_-
     public static CollisionResult check(CircleBody circle, RectBody rect) {
         float cx = circle.getPos().x;
         float cy = circle.getPos().x;

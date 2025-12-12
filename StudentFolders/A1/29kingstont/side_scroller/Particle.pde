@@ -26,7 +26,7 @@ public abstract class Particle {
         acc.mult(0);
     }
 
-    boolean isDead() {
+    boolean getIsDead() {
         return lifespan < 0.0; 
     }
 

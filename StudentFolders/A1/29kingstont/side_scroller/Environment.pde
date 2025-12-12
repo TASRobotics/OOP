@@ -5,9 +5,8 @@ public class Environment {
   
   private boolean isRaining;
 
-  private final float MIN_DARKNESS = 20;
+  private final float MIN_DARKNESS = 50;
 
-  private PGraphics glowTemplate;
   private PGraphics lightMask;
   private PGraphics darknessFilter;
 
@@ -36,7 +35,7 @@ public class Environment {
 
   // [0, 1)
   public float getDayPercentage() {
-    if (CONSTANT_DAYTIME) return 1;
+    if (Constants.CONSTANT_DAYTIME) return 1;
     
     float todayTime = ticks % dayLen;
     // q1 - Night
@@ -66,7 +65,7 @@ public class Environment {
     lightMask.noStroke();
 
     int increment = 5;
-    if (MINIMIZE_GRAPHICS) increment = 7;
+    if (Constants.MINIMIZE_GRAPHICS) increment = 7;
 
     for (int i=r; i>=0; i-=increment) {
       if (r <= fadeStartR) {
@@ -76,24 +75,6 @@ public class Environment {
         }
         lightMask.circle(c.x, c.y, i*2);
     }
-
-    // lightMask.loadPixels();
-
-    // for (int i = 0; i < lightMask.pixels.length; i++) {
-    //   int x = i%lightMask.width;
-    //   int y = i/lightMask.width;
-      
-    //   float pixelDist = dist(x, y, c.x, c.y);
-    //   if (pixelDist <= r) {
-    //     if (pixelDist <= fadeStartR) {
-    //       lightMask.pixels[i] = color(0);
-    //     } else {
-    //       float exp = 1;
-    //       lightMask.pixels[i] = color(map(pow(pixelDist, exp), pow(fadeStartR, exp), pow(r, exp), 0, alpha));
-    //     }
-    //   }
-    // }
-    // lightMask.updatePixels();
 
     lightMask.endDraw();
   }

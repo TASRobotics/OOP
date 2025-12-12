@@ -6,7 +6,7 @@ public class Bullet extends Entity<RectBody> {
     private int startOfLife;
 
     Bullet(PVector pos, PVector vel, PVector acc, float damage, ArrayList<Entity> targets) {
-        super(new RectBody(pos, 100, 10, 5)); // 10, 5
+        super(new RectBody(pos, 10, 5, 0)); // 10, 5
 
         this.damage = damage;
         this.targets = targets;
@@ -27,7 +27,7 @@ public class Bullet extends Entity<RectBody> {
 
     private void attack() {
         for (Entity e : targets) {
-            if (!(e instanceof HasHealth) || e.isDead()) continue;
+            if (!(e instanceof HasHealth) || e.getIsDead()) continue;
             HasHealth damageable = (HasHealth) e;
 
             if (e.getBody() instanceof RectBody) {

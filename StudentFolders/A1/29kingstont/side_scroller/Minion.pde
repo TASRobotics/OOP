@@ -1,6 +1,6 @@
 public class Minion extends Enemy<RectBody> {
-    Minion(PVector pos) {
-        super(new RectBody(pos, 40, 40, 1), 3, 1, 500, 5);
+    Minion(PVector pos, boolean isUpsideDown) {
+        super(new RectBody(pos, 40, 40, 1), 3, 1, 500, 5, 0, isUpsideDown);
     }
 
     @Override

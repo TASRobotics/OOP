@@ -5,26 +5,34 @@ public abstract class Weapon extends Item {
     protected boolean isInUse = false;
 
     Weapon(float cooldown, float damage) {
+        super(false);
         this.cooldown = cooldown;
         this.damage = damage;
+    }
+
+    public float getCooldown() {
+        return this.cooldown;
+    }
+    public float getDamage() {
+        return this.damage;
     }
 
     @Override
     public void update() {}
 
     @Override
-    public void use(Entity user, World world) {
+    public void useAction(Entity user, World world) {
         throw new Error("Please use the other use(). My code is bad ok shut up.");
     }
 
-    public void use(Entity<RectBody> user, ArrayList<Entity> targets) {
+    public void useAction(Entity<RectBody> user, ArrayList<Entity> targets) {
         if (cooldownSatisfied() && conditionSatisfied()) {
             this.lastUsed = millis();
             this.isInUse = true;
             attack(user, targets, world);
         }
     }
-    public void use(Entity<RectBody> user, Entity target) {
+    public void useAction(Entity<RectBody> user, Entity target) {
         if (cooldownSatisfied() && conditionSatisfied()) {
             this.lastUsed = millis();
             this.isInUse = true;
@@ -50,4 +58,9 @@ public abstract class Weapon extends Item {
         return millis() - this.lastUsed > this.cooldown;
     }
     protected abstract boolean conditionSatisfied();
+
+    @Override
+    public boolean equals(Object that) {
+        return false;
+    }
 }

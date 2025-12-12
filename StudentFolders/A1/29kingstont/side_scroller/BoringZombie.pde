@@ -1,14 +1,14 @@
 public class BoringZombie extends Enemy<RectBody> {
     protected Weapon weapon;
 
-    BoringZombie(PVector pos) {
-        super(new RectBody(pos, 40, 80, 1), 0.5, 5, 1000, 50);
+    BoringZombie(PVector pos, boolean isUpsideDown) {
+        super(new RectBody(pos, 40, 80, 1), 0.5, 5, 1000, 100, 2, isUpsideDown);
 
         this.weapon = new Knife(0, this.damage, 30, 30); // cooldown 0 because managed by Enemy class
     }
 
-    BoringZombie(PVector pos, int movementSpeed, float damage, int cooldown, int maxHealth) {
-        super(new RectBody(pos, 40, 80, 1), movementSpeed, damage, cooldown, maxHealth);
+    BoringZombie(PVector pos, int movementSpeed, float damage, int cooldown, int maxHealth, int sacrificialHealth, boolean isUpsideDown) {
+        super(new RectBody(pos, 40, 80, 1), movementSpeed, damage, cooldown, maxHealth, sacrificialHealth, isUpsideDown);
    
         this.weapon = new Knife(0, this.damage, 30, 30); // cooldown 0 because managed by Enemy class
     }
@@ -36,7 +36,7 @@ public class BoringZombie extends Enemy<RectBody> {
         Meeple meeple = world.getMeeple();
         if (meeple == null) return;
 
-        weapon.use(this, meeple);
+        weapon.useAction(this, meeple);
     }
 
     @Override

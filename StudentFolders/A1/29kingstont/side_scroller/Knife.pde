@@ -3,7 +3,7 @@ public class Knife extends Weapon {
     private int hitboxH;
 
     Knife() {
-        super(400, 40);
+    super(400, 30);
         this.hitboxW = 50;
         this.hitboxH = 30;
     }
@@ -49,14 +49,14 @@ public class Knife extends Weapon {
         ArrayList<Entity> targetsInRange = new ArrayList<>();
 
         for (Entity e : targets) {
-            if (e.isDead()) continue;
+            if (e.getIsDead()) continue;
             
             if (e.getBody() instanceof RectBody) {
-                if (Collision.check((RectBody) e.getBody(), hitbox).collided) {
+                if (Collision.check((RectBody) e.getBody(), hitbox).collided || Collision.check((RectBody) e.getBody(), (RectBody) user.getBody()).collided) {
                     targetsInRange.add(e);
                 }
             } else if (e.getBody() instanceof CircleBody) {
-                if (Collision.check((CircleBody) e.getBody(), hitbox).collided) {
+                if (Collision.check((CircleBody) e.getBody(), hitbox).collided || Collision.check((RectBody) e.getBody(), (RectBody) user.getBody()).collided) {
                     targetsInRange.add(e);
                 }
             }
@@ -99,7 +99,7 @@ public class Knife extends Weapon {
     public void iconDisplay(PVector pos) {
         fill(255);
         noStroke();
-        rect(pos.x, pos.y, ICON_W, ICON_H);
+        rect(pos.x, pos.y, Constants.BLOCK_UNIT, Constants.BLOCK_UNIT);
 
         fill(0);
         textSize(16);

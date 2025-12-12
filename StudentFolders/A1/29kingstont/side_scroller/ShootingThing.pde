@@ -11,7 +11,7 @@ public class ShootingThing extends Weapon {
     private int reloadStart;
 
     ShootingThing() {
-        super(200, 10);
+        super(200, 15);
         this.w = 35;
         this.h = 20;
 
@@ -131,7 +131,7 @@ public class ShootingThing extends Weapon {
     public void iconDisplay(PVector pos) {
         fill(255);
         noStroke();
-        rect(pos.x, pos.y, ICON_W, ICON_H);
+        rect(pos.x, pos.y, Constants.BLOCK_UNIT, Constants.BLOCK_UNIT);
 
         fill(0);
         textSize(16);

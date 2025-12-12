@@ -41,7 +41,7 @@ public class Layer {
 
     void cleanup() {
         for (int i = entities.size() - 1; i >= 0; i--) {
-            if (entities.get(i).isDead()) {
+            if (entities.get(i).getIsDead()) {
                 entities.remove(i);
             }
         }

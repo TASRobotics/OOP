@@ -1,6 +1,6 @@
 static int entityCount = 0;
 
-public abstract class Entity<T extends Body> {
+public abstract class Entity<T extends Body> implements Displayable, Killable {
     public int id;
     protected T body;
     protected PVector prevPos;
@@ -8,8 +8,9 @@ public abstract class Entity<T extends Body> {
     protected boolean isFacingRight = true;
 
     protected boolean isDead = false;
+    protected boolean isSuicide = false;
     protected boolean isUpsideDown;
-    protected boolean isFlipping;
+    protected boolean getIsFlipping;
 
     Entity(T body) {
         this.id = entityCount;
@@ -25,12 +26,8 @@ public abstract class Entity<T extends Body> {
     }
 
     Entity(T body, boolean isUpsideDown) {
-        this.id = entityCount;
-        this.body = body;
-
+        this(body);
         this.isUpsideDown = isUpsideDown;
-
-        entityCount++;
     }
 
     public T getBody() {
@@ -66,14 +63,17 @@ public abstract class Entity<T extends Body> {
     public int getDirection() {
         return this.isUpsideDown ? -1 : 1;
     }
-    public boolean isUpsideDown() {
+    public boolean getIsUpsideDown() {
         return this.isUpsideDown;
     }
-    public boolean isFlipping() {
-        return this.isFlipping;
+    public boolean getIsFlipping() {
+        return this.getIsFlipping;
     }
-    public boolean isDead() {
+    public boolean getIsDead() {
         return this.isDead;
+    }
+    public boolean getIsSuicide() {
+        return this.isSuicide;
     }
 
 
@@ -93,20 +93,21 @@ public abstract class Entity<T extends Body> {
     public void setIsUpsideDown(boolean b) {
         if (this.isUpsideDown != b) this.flip();
     }
-    public void setIsFlipping(boolean b) {
-        this.isFlipping = b;
+    public void setgetIsFlipping(boolean b) {
+        this.getIsFlipping = b;
     }
     public void setIsFacingRight(boolean b) {
         this.isFacingRight = b;
     }
     public void flip() {
-        if (this.isFlipping && !ALLOW_FLYING) return;
+        if (this.getIsFlipping && !Constants.ALLOW_FLYING) return;
         
         this.isUpsideDown = !this.isUpsideDown;
-        this.isFlipping = true;
+        this.getIsFlipping = true;
     }
     public void die() {
         this.isDead = true;
+        this.isSuicide = true;
     }
 
     public void applyForce(PVector F) {

@@ -29,16 +29,15 @@ class TerrainSeg {
 }
 
 class Terrain {
-  private final int blockSideLen = 40;
   ArrayList<TerrainSeg> segments;
   private int minX;
   private int maxX;
 
   
   
-  private final int baseHAboveGround = blockSideLen*3;
-  private final int maxVarianceUp = blockSideLen*5;
-  private final int maxVarianceDown = blockSideLen*2;
+  private final int baseHAboveGround = Constants.BLOCK_UNIT*3;
+  private final int maxVarianceUp = Constants.BLOCK_UNIT*5;
+  private final int maxVarianceDown = Constants.BLOCK_UNIT*2;
 
   private boolean isUpsideDown;
 
@@ -91,7 +90,7 @@ class Terrain {
     TerrainSeg lastSeg = segments.size() > 0 ? segments.get(0) : null;
     int lastSegHeight = lastSeg != null ? lastSeg.getH() : this.baseHAboveGround;
 
-    this.segments.add(0, new TerrainSeg(this.minX-len, this.minX, lastSegHeight+riseFactor*this.blockSideLen));
+    this.segments.add(0, new TerrainSeg(this.minX-len, this.minX, lastSegHeight+riseFactor*Constants.BLOCK_UNIT));
     this.minX -= len;
   }
   public void constructRight(int len) {
@@ -109,7 +108,7 @@ class Terrain {
     TerrainSeg lastSeg = (segments.size() > 0) ? segments.get(lastSegIdx) : null;
     int lastSegHeight = (lastSeg != null) ? lastSeg.height : baseHAboveGround;
 
-    int newHAboveGround = lastSegHeight+riseFactor*blockSideLen;
+    int newHAboveGround = lastSegHeight + riseFactor * Constants.BLOCK_UNIT;
     
     float variance = (newHAboveGround - baseHAboveGround);
     if (variance < 0 && abs(variance) > this.maxVarianceDown) newHAboveGround = this.baseHAboveGround - this.maxVarianceDown;
