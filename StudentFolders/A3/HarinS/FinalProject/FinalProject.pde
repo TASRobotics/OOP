@@ -203,27 +203,28 @@ boolean keyDown(int kcode) {
 
 void mousePressed() {
   int prevScreen = screen;
+  if (!finished) {
+    doYouHaveKey();
+    if (pointRect(mouseX, mouseY, 30, 285, 50, 25) && screen != 0) {
+      screen -= 1;
+    }
+    if (pointRect(mouseX, mouseY, 720, 285, 50, 25) && screen != 2) {
+      screen += 1;
+    }
 
-  doYouHaveKey();
-  if (pointRect(mouseX, mouseY, 30, 285, 50, 25) && screen != 0) {
-    screen -= 1;
-  }
-  if (pointRect(mouseX, mouseY, 720, 285, 50, 25) && screen != 2) {
-    screen += 1;
-  }
-
-  if (screen == 0) {
-    doorPressed();
-  }
-  if (screen == -2) {
-    memoryGameClickCheck();
-  }
-  if (screen == -3) {
-    reddoor();
-    pause(screen != prevScreen);
-  }
-  if (screen == -4) {
-    greendoor();
-    GreenReturn();
+    if (screen == 0) {
+      doorPressed();
+    }
+    if (screen == -2) {
+      memoryGameClickCheck();
+    }
+    if (screen == -3) {
+      reddoor();
+      pause(screen != prevScreen);
+    }
+    if (screen == -4) {
+      greendoor();
+      GreenReturn();
+    }
   }
 }
