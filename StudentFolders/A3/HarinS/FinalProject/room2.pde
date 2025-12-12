@@ -1,15 +1,3 @@
-/*
- * Room 1 - Sword Collection Room with Border Constraints
- *
- * This room demonstrates:
- * - Border collision detection
- * - Item collection mechanics
- * - Room transition logic
- * - Conditional item rendering
- *
- * Player can only move left to return to room 0
- */
-
 void screen2() {
   int moveEvery = 3;
   int lastMoved = millis();
