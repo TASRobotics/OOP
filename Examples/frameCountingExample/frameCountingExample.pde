@@ -26,7 +26,7 @@ void draw() {
 
   //Frame Counting Example
   //if (mousePressed) {
-  //  if (frameCount % 2 == 0) {
+  //  if (frameCount % 5 == 0) {
   //    //circle(random(width), random(height), 25);
   //    fill(255, 50);
   //    circle(mouseX + random(-20, 20), mouseY + random(-20, 20), 25);
